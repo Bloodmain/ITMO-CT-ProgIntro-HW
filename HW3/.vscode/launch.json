@@ -1,0 +1,31 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch ReverseAvg",
+            "request": "launch",
+            "mainClass": "ReverseAvg",
+            "projectName": "HW3_581ac2ba",
+            "args": [
+                
+            ]
+        },
+        {
+            "type": "java",
+            "name": "Launch Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Launch Reverse",
+            "request": "launch",
+            "mainClass": "Reverse",
+            "projectName": "HW3_581ac2ba"
+        }
+    ]
+}
