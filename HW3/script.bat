@@ -1,4 +1,3 @@
-javac Reverse.java
-javac ReverseAvg.java
+javac *.java
 java -ea -jar ReverseTest.jar Avg
 PAUSE
