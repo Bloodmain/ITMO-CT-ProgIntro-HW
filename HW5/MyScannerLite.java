@@ -1,5 +1,4 @@
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -11,7 +10,7 @@ import java.util.NoSuchElementException;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
-public class MyScanner {
+public class MyScannerLite {
     final int BUFFER_SIZE = 1024;
 
     private final Reader reader;
@@ -19,35 +18,34 @@ public class MyScanner {
     private CharPredicate checkForDelimiter = Character::isWhitespace;
 
     String token = "";
-    int tokenStart = 0;
     boolean isTokenNotWhitespace = false;
 
     int bufferDataSize = 0;
     int bufferCurrentIndex = 0;
     boolean isClosed = false;
 
-    MyScanner(InputStream stream) {
+    MyScannerLite(InputStream stream) {
         reader = new InputStreamReader(stream);
         buffer = new char[BUFFER_SIZE];
     }
 
-    MyScanner(String lineToParse) {
+    MyScannerLite(String lineToParse) {
         reader = new InputStreamReader(
-            new ByteArrayInputStream(lineToParse.getBytes(StandardCharsets.UTF_8))
+                new ByteArrayInputStream(lineToParse.getBytes(StandardCharsets.UTF_8))
         );
         buffer = new char[BUFFER_SIZE];
     }
 
-    MyScanner(String filepath, String charsetName) throws FileNotFoundException, IOException, UnsupportedCharsetException {
+    MyScannerLite(String filepath, String charsetName) throws IOException, UnsupportedCharsetException {
         reader = new InputStreamReader(
-            new FileInputStream(filepath), charsetName
+                new FileInputStream(filepath), charsetName
         );
         buffer = new char[BUFFER_SIZE];
     }
 
-    MyScanner(String filepath, Charset charsetName) throws FileNotFoundException, IOException, UnsupportedCharsetException {
+    MyScannerLite(String filepath, Charset charsetName) throws IOException, UnsupportedCharsetException {
         reader = new InputStreamReader(
-            new FileInputStream(filepath), charsetName
+                new FileInputStream(filepath), charsetName
         );
         buffer = new char[BUFFER_SIZE];
     }
@@ -84,7 +82,6 @@ public class MyScanner {
         assertOpened();
 
         token = "";
-        tokenStart = 0;
         boolean tokenStarted = readTillEOL;
         int start = bufferCurrentIndex;
         StringBuilder wordBuffer = new StringBuilder();
@@ -113,7 +110,7 @@ public class MyScanner {
             }
 
             bufferCurrentIndex++;
-            
+
         }
 
         isTokenNotWhitespace = tokenStarted;
@@ -122,7 +119,7 @@ public class MyScanner {
     public boolean hasNext() throws IllegalStateException, IOException {
         assertOpened();
 
-        if (token.isEmpty() || tokenStart >= token.length()) {
+        if (token.isEmpty()) {
             readToken(false);
         }
         return isTokenNotWhitespace;
@@ -166,7 +163,7 @@ public class MyScanner {
         if (!hasNext()) {
             return false;
         } else {
-            return isNumeric(token.substring(tokenStart).trim(), String.valueOf(Integer.MAX_VALUE), String.valueOf(Integer.MIN_VALUE));
+            return isNumeric(token.trim(), String.valueOf(Integer.MAX_VALUE), String.valueOf(Integer.MIN_VALUE));
         }
     }
 
@@ -174,10 +171,9 @@ public class MyScanner {
         if (!hasNext()) {
             throw new NoSuchElementException("No tokens in stream");
         }
-        
-        String res = token.substring(tokenStart).trim();
+
+        String res = token.trim();
         token = "";
-        tokenStart = 0;
         isTokenNotWhitespace = false;
         return res;
     }
@@ -190,36 +186,35 @@ public class MyScanner {
             throw new InputMismatchException("Next token is doesn't match Integer");
         }
 
-        int res = Integer.parseInt(token.substring(tokenStart).trim());
+        int res = Integer.parseInt(token.trim());
         token = "";
-        tokenStart = 0;
         isTokenNotWhitespace = false;
         return res;
     }
 
     public boolean hasNextLine() throws IllegalStateException, IOException {
         assertOpened();
-        if (token.isEmpty() || tokenStart >= token.length()) {
-            readToken(false);
+        if (token.isEmpty()) {
+            if (bufferCurrentIndex < bufferDataSize) {
+                return true;
+            } else {
+                readToBuffer();
+                return bufferDataSize != -1;
+            }
         }
-        return !token.isEmpty();
+        return true;
     }
 
     public String nextLine() throws IllegalStateException, IOException, NoSuchElementException {
         if (!hasNextLine()) {
-            throw new NoSuchElementException("No line found"); 
+            throw new NoSuchElementException("No line found");
         }
 
-        String res = token.substring(tokenStart);
-
-        if (res.indexOf('\n') > -1) {
-            int i = res.indexOf('\n');
-            tokenStart += i + 1;
-            return res.substring(0, i);
-        }
+        String res = token;
 
         setDelimiter(chr ->  chr == '\n');
         readToken(true);
+        setDelimiter(Character::isWhitespace);
 
         res += token;
         token = "";

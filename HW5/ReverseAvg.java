@@ -14,7 +14,7 @@ public class ReverseAvg {
         int[] data = new int[2];
         int[] digitsOnLine = new int[2];
 
-        MyScanner scanner = new MyScanner(System.in);
+        MyScannerLite scanner = new MyScannerLite(System.in);
         int linesNumber = 0;
         int digitsCount = 0;
         int maxColumn = 0;
@@ -25,7 +25,7 @@ public class ReverseAvg {
             while (scanner.hasNextLine()) {
                 digitsOnLine = checkAndAmortizeSize(digitsOnLine, linesNumber);
 
-                MyScanner lineScanner = new MyScanner(scanner.nextLine());
+                MyScannerLite lineScanner = new MyScannerLite(scanner.nextLine());
                 int column = 0;
 
                 while (lineScanner.hasNextInt()) {

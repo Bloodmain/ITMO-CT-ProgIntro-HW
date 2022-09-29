@@ -13,7 +13,7 @@ public class Reverse {
     public static void main(String[] args) {
         int[] data = new int[2];
         int[] digitsOnLine = new int[2];
-        MyScanner scanner = new MyScanner(System.in);
+        MyScannerLite scanner = new MyScannerLite(System.in);
         int linesNumber = 0;
         int digitsCount = 0;
 
@@ -21,7 +21,7 @@ public class Reverse {
             while (scanner.hasNextLine()) {
                 digitsOnLine = checkAndAmortizeSize(digitsOnLine, linesNumber);
 
-                MyScanner lineScanner = new MyScanner(scanner.nextLine());
+                MyScannerLite lineScanner = new MyScannerLite(scanner.nextLine());
 
                 while (lineScanner.hasNextInt()) {
                     data = checkAndAmortizeSize(data, digitsCount);
