@@ -74,14 +74,20 @@ public class MyScanner {
         }
     }
 
-    private void assertOpened() throws IllegalStateException {
+    private void clearToken() {
+        token = "";
+        tokenStart = 0;
+        isTokenNotWhitespace = false;
+    }
+
+    private void assertIsOpened() throws IllegalStateException {
         if (isClosed) {
             throw new IllegalStateException("Scanner has been closed");
         };
     }
 
     private void readToken(boolean readTillEOL) throws IllegalStateException, IOException, NoSuchElementException {
-        assertOpened();
+        assertIsOpened();
 
         token = "";
         tokenStart = 0;
@@ -120,7 +126,7 @@ public class MyScanner {
     }
 
     public boolean hasNext() throws IllegalStateException, IOException {
-        assertOpened();
+        assertIsOpened();
 
         if (token.isEmpty() || tokenStart >= token.length()) {
             readToken(false);
@@ -176,9 +182,7 @@ public class MyScanner {
         }
         
         String res = token.substring(tokenStart).trim();
-        token = "";
-        tokenStart = 0;
-        isTokenNotWhitespace = false;
+        clearToken();
         return res;
     }
 
@@ -191,14 +195,12 @@ public class MyScanner {
         }
 
         int res = Integer.parseInt(token.substring(tokenStart).trim());
-        token = "";
-        tokenStart = 0;
-        isTokenNotWhitespace = false;
+        clearToken();
         return res;
     }
 
     public boolean hasNextLine() throws IllegalStateException, IOException {
-        assertOpened();
+        assertIsOpened();
         if (token.isEmpty() || tokenStart >= token.length()) {
             readToken(false);
         }
@@ -222,8 +224,7 @@ public class MyScanner {
         readToken(true);
 
         res += token;
-        token = "";
-        isTokenNotWhitespace = false;
+        clearToken();
         return res;
     }
 }

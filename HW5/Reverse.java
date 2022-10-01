@@ -23,7 +23,7 @@ public class Reverse {
 
                 MyScannerLite lineScanner = new MyScannerLite(scanner.nextLine());
 
-                while (lineScanner.hasNextInt()) {
+                while (lineScanner.hasNext()) {
                     data = checkAndAmortizeSize(data, digitsCount);
 
                     data[digitsCount] = lineScanner.nextInt();
