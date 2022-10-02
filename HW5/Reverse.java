@@ -14,25 +14,27 @@ public class Reverse {
         int[] data = new int[2];
         int[] digitsOnLine = new int[2];
         MyScannerLite scanner = new MyScannerLite(System.in);
+        scanner.setCorrectLetter(chr -> Character.isDigit(chr) || chr == '-' || chr == '+');
         int linesNumber = 0;
         int digitsCount = 0;
 
         try {
-            while (scanner.hasNextLine()) {
+            while (scanner.hasNext()) {
                 digitsOnLine = checkAndAmortizeSize(digitsOnLine, linesNumber);
 
-                MyScannerLite lineScanner = new MyScannerLite(scanner.nextLine());
+                data = checkAndAmortizeSize(data, digitsCount);
 
-                while (lineScanner.hasNext()) {
-                    data = checkAndAmortizeSize(data, digitsCount);
+                Pair token = scanner.next();
 
-                    data[digitsCount] = Integer.parseInt(lineScanner.next());
+                if (!token.getFirst().isEmpty()) {
+                    data[digitsCount] = Integer.parseInt(token.getFirst());
                     digitsOnLine[linesNumber]++;
                     digitsCount++;
                 }
 
-                lineScanner.close();
-                linesNumber++;
+                if (token.getSecond()) {
+                    linesNumber++;
+                }
             }
 
             scanner.close();

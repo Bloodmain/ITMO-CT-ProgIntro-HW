@@ -3,8 +3,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.Charset;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.NoSuchElementException;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -14,12 +12,12 @@ public class MyScannerLite {
 
     private final Reader reader;
     private final char[] buffer;
-    private CharPredicate checkForDelimiter = Character::isWhitespace;
-    private CharPredicate checkForLineSeparator = chr -> chr == '\n';
+    private CharPredicate isCorrectLetter = Character::isLetter;
+    private CharPredicate isLineSeparator = chr -> chr == '\n';
+
 
     String token = "";
-    boolean isTokenNotWhitespace = false;
-
+    boolean isTokenAtEOL = false;
     int bufferDataSize = 0;
     int bufferCurrentIndex = 0;
     boolean isClosed = false;
@@ -36,12 +34,12 @@ public class MyScannerLite {
         buffer = new char[BUFFER_SIZE];
     }
 
-    public void setDelimiter(CharPredicate delimiter) {
-        checkForDelimiter = delimiter;
+    public void setCorrectLetter(CharPredicate delimiter) {
+        isCorrectLetter = delimiter;
     }
 
     public void setLineSeparator(CharPredicate lineSeparator) {
-        checkForLineSeparator = lineSeparator;
+        isLineSeparator = lineSeparator;
     }
 
     private void readToBuffer() throws IOException {
@@ -51,7 +49,7 @@ public class MyScannerLite {
 
     private void clearToken() {
         token = "";
-        isTokenNotWhitespace = false;
+        isTokenAtEOL = false;
     }
 
     public void close() throws IllegalStateException, IOException {
@@ -66,13 +64,14 @@ public class MyScannerLite {
     private void assertIsOpened() throws IllegalStateException {
         if (isClosed) {
             throw new IllegalStateException("Scanner has been closed");
-        };
+        }
     }
 
-    private void readToken(boolean readTillEOL) throws IllegalStateException, IOException, NoSuchElementException {
+    private void readToken() throws IllegalStateException, IOException, NoSuchElementException {
         assertIsOpened();
 
         clearToken();
+        boolean letterSequence = false;
         boolean tokenStarted = false;
         int start = bufferCurrentIndex;
 
@@ -88,69 +87,46 @@ public class MyScannerLite {
                 }
             }
 
-            if (checkForDelimiter.test(buffer[bufferCurrentIndex])) {
-                if (tokenStarted || readTillEOL)  {
+            if (isLineSeparator.test(buffer[bufferCurrentIndex])) {
+                wordBuffer.append(buffer, start, bufferCurrentIndex - start);
+                isTokenAtEOL = true;
+                bufferCurrentIndex++;
+                break;
+            }
+
+            if (isCorrectLetter.test(buffer[bufferCurrentIndex])) {
+                if (!letterSequence && tokenStarted)  {
                     wordBuffer.append(buffer, start, bufferCurrentIndex - start);
-                    if (checkForLineSeparator.test(buffer[bufferCurrentIndex])) {
-                        bufferCurrentIndex++;
-                    }
                     break;
                 }
-            } else {
                 tokenStarted = true;
+                letterSequence = true;
+            } else {
+                letterSequence = false;
             }
             bufferCurrentIndex++;
         }
 
         token = wordBuffer.toString();
-        isTokenNotWhitespace = tokenStarted;
     }
 
     public boolean hasNext() throws IllegalStateException, IOException {
         assertIsOpened();
 
         if (token.isEmpty()) {
-            readToken(false);
+            readToken();
         }
-        return isTokenNotWhitespace;
+        return !token.isEmpty() || isTokenAtEOL;
     }
 
-    public String next() throws IllegalStateException, IOException, NoSuchElementException {
+    public Pair next() throws IllegalStateException, IOException, NoSuchElementException {
         if (!hasNext()) {
             throw new NoSuchElementException("No tokens in stream");
         }
 
-        String res = token.trim();
+        String resToken = token.trim();
+        boolean isResEOL = isTokenAtEOL;
         clearToken();
-        return res;
-    }
-
-    public boolean hasNextLine() throws IllegalStateException, IOException {
-        assertIsOpened();
-        if (token.isEmpty()) {
-            if (bufferCurrentIndex < bufferDataSize) {
-                return true;
-            } else {
-                readToBuffer();
-                return bufferDataSize != -1;
-            }
-        }
-        return true;
-    }
-
-    public String nextLine() throws IllegalStateException, IOException, NoSuchElementException {
-        if (!hasNextLine()) {
-            throw new NoSuchElementException("No line found");
-        }
-
-        String res = token;
-        CharPredicate lastDelimiter = checkForDelimiter;
-        setDelimiter(checkForLineSeparator);
-        readToken(true);
-        setDelimiter(lastDelimiter);
-
-        res += token;
-        clearToken();
-        return res;
+        return new Pair(resToken, isResEOL);
     }
 }
