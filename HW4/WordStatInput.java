@@ -1,10 +1,4 @@
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -53,8 +47,10 @@ public class WordStatInput {
                 reader.close();
             }
 
-        } catch (IOException e) {
+        } catch (FileNotFoundException) {
             System.out.println("Input file not found: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("I/O exception occurred: " + e.getMessage());
         } catch (ArrayIndexOutOfBoundsException e) {
             System.out.println("You haven't pass the name of an input file: " + e.getMessage());
         }

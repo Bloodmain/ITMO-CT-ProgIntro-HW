@@ -26,7 +26,7 @@ public class Reverse {
                 while (lineScanner.hasNext()) {
                     data = checkAndAmortizeSize(data, digitsCount);
 
-                    data[digitsCount] = lineScanner.nextInt();
+                    data[digitsCount] = Integer.parseInt(lineScanner.next());
                     digitsOnLine[linesNumber]++;
                     digitsCount++;
                 }

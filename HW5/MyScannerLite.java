@@ -5,19 +5,17 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.Arrays;
-import java.util.InputMismatchException;
 import java.util.NoSuchElementException;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
 public class MyScannerLite {
     final int BUFFER_SIZE = 1024;
-    final int TOKEN_BUFFER_INITIAL_SIZE = 2;
 
     private final Reader reader;
     private final char[] buffer;
     private CharPredicate checkForDelimiter = Character::isWhitespace;
+    private CharPredicate checkForLineSeparator = chr -> chr == '\n';
 
     String token = "";
     boolean isTokenNotWhitespace = false;
@@ -38,26 +36,12 @@ public class MyScannerLite {
         buffer = new char[BUFFER_SIZE];
     }
 
-    MyScannerLite(String filepath, String charsetName) throws IOException, UnsupportedCharsetException {
-        reader = new InputStreamReader(
-                new FileInputStream(filepath), charsetName
-        );
-        buffer = new char[BUFFER_SIZE];
-    }
-
-    MyScannerLite(String filepath, Charset charsetName) throws IOException, UnsupportedCharsetException {
-        reader = new InputStreamReader(
-                new FileInputStream(filepath), charsetName
-        );
-        buffer = new char[BUFFER_SIZE];
-    }
-
-    public CharPredicate getDelimiter() {
-        return checkForDelimiter;
-    }
-
     public void setDelimiter(CharPredicate delimiter) {
         checkForDelimiter = delimiter;
+    }
+
+    public void setLineSeparator(CharPredicate lineSeparator) {
+        checkForLineSeparator = lineSeparator;
     }
 
     private void readToBuffer() throws IOException {
@@ -89,7 +73,7 @@ public class MyScannerLite {
         assertIsOpened();
 
         clearToken();
-        boolean tokenStarted = readTillEOL;
+        boolean tokenStarted = false;
         int start = bufferCurrentIndex;
 
         StringBuilder wordBuffer = new StringBuilder();
@@ -105,9 +89,9 @@ public class MyScannerLite {
             }
 
             if (checkForDelimiter.test(buffer[bufferCurrentIndex])) {
-                if (tokenStarted)  {
+                if (tokenStarted || readTillEOL)  {
                     wordBuffer.append(buffer, start, bufferCurrentIndex - start);
-                    if (readTillEOL) {
+                    if (checkForLineSeparator.test(buffer[bufferCurrentIndex])) {
                         bufferCurrentIndex++;
                     }
                     break;
@@ -141,16 +125,6 @@ public class MyScannerLite {
         return res;
     }
 
-    public int nextInt() throws IllegalStateException, IOException, NoSuchElementException {
-        if (!hasNext()) {
-            throw new NoSuchElementException("No tokens in stream");
-        }
-
-        int res = Integer.parseInt(token.trim());
-        clearToken();
-        return res;
-    }
-
     public boolean hasNextLine() throws IllegalStateException, IOException {
         assertIsOpened();
         if (token.isEmpty()) {
@@ -170,10 +144,10 @@ public class MyScannerLite {
         }
 
         String res = token;
-
-        setDelimiter(chr -> chr == '\n');
+        CharPredicate lastDelimiter = checkForDelimiter;
+        setDelimiter(checkForLineSeparator);
         readToken(true);
-        setDelimiter(Character::isWhitespace);
+        setDelimiter(lastDelimiter);
 
         res += token;
         clearToken();

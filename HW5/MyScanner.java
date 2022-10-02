@@ -17,6 +17,7 @@ public class MyScanner {
     private final Reader reader;
     private final char[] buffer;
     private CharPredicate checkForDelimiter = Character::isWhitespace;
+    private CharPredicate checkForLineSeparator = chr -> chr == '\n';
 
     String token = "";
     int tokenStart = 0;
@@ -56,8 +57,16 @@ public class MyScanner {
         return checkForDelimiter;
     }
 
+    public CharPredicate getLineSeparator() {
+        return checkForLineSeparator;
+    }
+
     public void setDelimiter(CharPredicate delimiter) {
         checkForDelimiter = delimiter;
+    }
+
+    public void setLineSeparator(CharPredicate lineSeparator) {
+        checkForLineSeparator = lineSeparator;
     }
 
     private void readToBuffer() throws IOException {
@@ -220,8 +229,10 @@ public class MyScanner {
             return res.substring(0, i);
         }
 
-        setDelimiter(chr ->  chr == '\n');
+        CharPredicate lastDelimiter = checkForDelimiter;
+        setDelimiter(checkForLineSeparator);
         readToken(true);
+        setDelimiter(lastDelimiter);
 
         res += token;
         clearToken();
