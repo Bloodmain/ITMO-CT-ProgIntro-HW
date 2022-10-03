@@ -1,11 +1,12 @@
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Set;
 
 public class Reverse {
 
     public static int[] checkAndAmortizeSize(int[] arr, int len) {
         if (len >= arr.length) {
-            arr = Arrays.copyOf(arr, arr.length * 2);
+            arr = Arrays.copyOf(arr, len * 2);
         }
         return arr;
     }
@@ -20,20 +21,22 @@ public class Reverse {
 
         try {
             while (scanner.hasNext()) {
+                while (scanner.hasNextEmptyLine()) {
+                    scanner.next();
+                    linesNumber++;
+                }
                 digitsOnLine = checkAndAmortizeSize(digitsOnLine, linesNumber);
+                if (scanner.hasNext()) {
+                    data = checkAndAmortizeSize(data, digitsCount);
 
-                data = checkAndAmortizeSize(data, digitsCount);
-
-                Pair token = scanner.next();
-
-                if (!token.getFirst().isEmpty()) {
+                    Pair token = scanner.next();
                     data[digitsCount] = Integer.parseInt(token.getFirst());
                     digitsOnLine[linesNumber]++;
                     digitsCount++;
-                }
 
-                if (token.getSecond()) {
-                    linesNumber++;
+                    if (token.getSecond()) {
+                        linesNumber++;
+                    }
                 }
             }
 

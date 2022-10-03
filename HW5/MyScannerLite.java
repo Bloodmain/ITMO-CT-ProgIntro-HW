@@ -107,16 +107,24 @@ public class MyScannerLite {
             bufferCurrentIndex++;
         }
 
-        token = wordBuffer.toString();
+        token = wordBuffer.toString().trim();
     }
 
     public boolean hasNext() throws IllegalStateException, IOException {
         assertIsOpened();
 
-        if (token.isEmpty()) {
+        if (token.isEmpty() && !isTokenAtEOL) {
             readToken();
         }
         return !token.isEmpty() || isTokenAtEOL;
+    }
+
+    public boolean hasNextEmptyLine() throws IllegalStateException, IOException {
+        if (!hasNext()) {
+            return false;
+        }
+
+        return token.isEmpty() && isTokenAtEOL;
     }
 
     public Pair next() throws IllegalStateException, IOException, NoSuchElementException {
@@ -124,7 +132,7 @@ public class MyScannerLite {
             throw new NoSuchElementException("No tokens in stream");
         }
 
-        String resToken = token.trim();
+        String resToken = token;
         boolean isResEOL = isTokenAtEOL;
         clearToken();
         return new Pair(resToken, isResEOL);
