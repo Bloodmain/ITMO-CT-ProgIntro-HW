@@ -13,12 +13,13 @@ public class Reverse {
 
     public static void main(String[] args) {
         final int START_ARRAY_SIZE = 2;
+
         int[] data = new int[START_ARRAY_SIZE];
-        int[] digitsOnLine = new int[START_ARRAY_SIZE];
+        int[] numbersOnLine = new int[START_ARRAY_SIZE];
         MyScannerLite scanner = new MyScannerLite(System.in);
-        scanner.setCorrectLetter(chr -> Character.isDigit(chr) || chr == '-' || chr == '+');
+        scanner.setCorrectLetter(chr -> !Character.isWhitespace(chr));
         int linesNumber = 0;
-        int digitsCount = 0;
+        int numbersCount = 0;
 
         try {
             while (scanner.hasNext() || scanner.hasNextEmptyLine()) {
@@ -26,14 +27,14 @@ public class Reverse {
                     scanner.skipEmptyLine();
                     linesNumber++;
                 }
-                digitsOnLine = checkAndAmortizeSize(digitsOnLine, linesNumber);
+                numbersOnLine = checkAndAmortizeSize(numbersOnLine, linesNumber);
                 if (scanner.hasNext()) {
-                    data = checkAndAmortizeSize(data, digitsCount);
+                    data = checkAndAmortizeSize(data, numbersCount);
 
                     String token = scanner.next();
-                    data[digitsCount] = Integer.parseInt(token);
-                    digitsOnLine[linesNumber]++;
-                    digitsCount++;
+                    data[numbersCount] = Integer.parseInt(token);
+                    numbersOnLine[linesNumber]++;
+                    numbersCount++;
 
                     if (scanner.wasLastTokenAtEOF()) {
                         linesNumber++;
@@ -43,18 +44,17 @@ public class Reverse {
 
             scanner.close();
         } catch (IllegalStateException e) {
-            System.out.println("Trying to use closed scanner " + e.getMessage());
+            System.out.println("Trying to use closed scanner: " + e.getMessage());
         } catch (NoSuchElementException e) {
-            System.out.println("The input is exhausted" + e.getMessage());
+            System.out.println("The input is exhausted: " + e.getMessage());
         } catch (IOException e) {
             System.out.println("I/O exception occurred: " + e.getMessage());
         }
 
-        int currentDigitToPrint = digitsCount - 1;
+        int currentNumberToPrint = numbersCount - 1;
         for (int line = linesNumber - 1; line >= 0; --line) {
-            for (int digit = digitsOnLine[line] - 1; digit >= 0; --digit) {
-                System.out.print(data[currentDigitToPrint] + " ");
-                currentDigitToPrint--;
+            for (int number = numbersOnLine[line] - 1; number >= 0; --number) {
+                System.out.print(data[currentNumberToPrint--] + " ");
             }
             System.out.println();
         }
