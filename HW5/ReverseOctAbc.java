@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 
 public class ReverseOctAbc {
     public static int[] checkAndAmortizeSize(int[] arr, int len) {
@@ -23,16 +24,6 @@ public class ReverseOctAbc {
         return String.valueOf(res);
     }
 
-    public static int parseOct(String number) {
-        int res = 0;
-        int base = 1;
-        for (int i = number.length() - 1; i > -1; --i) {
-            res += base * Character.getNumericValue(number.charAt(i));
-            base *= 8;
-        }
-        return res;
-    }
-
     public static void main(String[] args) {
         final int START_ARRAY_SIZE = 2;
 
@@ -44,32 +35,36 @@ public class ReverseOctAbc {
         int digitsCount = 0;
 
         try {
-            while (scanner.hasNext()) {
+            while (scanner.hasNext() || scanner.hasNextEmptyLine()) {
                 while (scanner.hasNextEmptyLine()) {
-                    scanner.next();
+                    scanner.skipEmptyLine();
                     linesNumber++;
                 }
                 digitsOnLine = checkAndAmortizeSize(digitsOnLine, linesNumber);
                 if (scanner.hasNext()) {
                     data = checkAndAmortizeSize(data, digitsCount);
 
-                    Pair token = scanner.next();
-                    if (token.getFirst().toLowerCase().endsWith("o")) {
-                        data[digitsCount] = parseOct(token.getFirst().substring(0, token.getFirst().length() - 1));
+                    String token = scanner.next().toLowerCase();
+                    if (token.endsWith("o")) {
+                        data[digitsCount] = Integer.parseUnsignedInt(token.substring(0, token.length() - 1), 8);
                     } else {
-                        data[digitsCount] = Integer.parseInt(toStandardForm(token.getFirst()));
+                        data[digitsCount] = Integer.parseInt(toStandardForm(token));
                     }
 
                     digitsOnLine[linesNumber]++;
                     digitsCount++;
 
-                    if (token.getSecond()) {
+                    if (scanner.wasLastTokenAtEOF()) {
                         linesNumber++;
                     }
                 }
             }
 
             scanner.close();
+        } catch (IllegalStateException e) {
+            System.out.println("Trying to use closed scanner " + e.getMessage());
+        } catch (NoSuchElementException e) {
+            System.out.println("There are no elements in the scanner, that are being tried to be read " + e.getMessage());
         } catch (IOException e) {
             System.out.println("I/O exception occurred: " + e.getMessage());
         }
@@ -77,8 +72,7 @@ public class ReverseOctAbc {
         int currentDigitToPrint = digitsCount - 1;
         for (int line = linesNumber - 1; line >= 0; --line) {
             for (int digit = digitsOnLine[line] - 1; digit >= 0; --digit) {
-                System.out.print(data[currentDigitToPrint] + " ");
-                currentDigitToPrint--;
+                System.out.print(data[currentDigitToPrint--] + " ");
             }
             System.out.println();
         }

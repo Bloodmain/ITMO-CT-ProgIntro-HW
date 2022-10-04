@@ -112,28 +112,44 @@ public class MyScannerLite {
     public boolean hasNext() throws IllegalStateException, IOException {
         assertIsOpened();
 
-        if (token.isEmpty() && !isTokenAtEOL) {
+        if (token.isEmpty()) {
             readToken();
         }
-        return !token.isEmpty() || isTokenAtEOL;
+        return !token.isEmpty();
     }
 
     public boolean hasNextEmptyLine() throws IllegalStateException, IOException {
-        if (!hasNext()) {
-            return false;
+        assertIsOpened();
+
+        if (token.isEmpty() && !isTokenAtEOL) {
+            readToken();
         }
 
         return token.isEmpty() && isTokenAtEOL;
     }
 
-    public Pair next() throws IllegalStateException, IOException, NoSuchElementException {
+    public String next() throws IllegalStateException, IOException, NoSuchElementException {
         if (!hasNext()) {
             throw new NoSuchElementException("No tokens in stream");
         }
 
         String resToken = token;
-        boolean isResEOL = isTokenAtEOL;
-        clearToken();
-        return new Pair(resToken, isResEOL);
+        token = "";
+        return resToken;
+    }
+
+    public void skipEmptyLine() throws IOException, IllegalStateException, NoSuchElementException {
+        assertIsOpened();
+        if (!hasNextEmptyLine()) {
+            throw new NoSuchElementException("No empty line in stream");
+        }
+        hasNext();
+    }
+
+    public boolean wasLastTokenAtEOF() throws IllegalStateException {
+        assertIsOpened();
+        boolean res = isTokenAtEOL;
+        isTokenAtEOL = false;
+        return res;
     }
 }

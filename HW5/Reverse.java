@@ -20,21 +20,21 @@ public class Reverse {
         int digitsCount = 0;
 
         try {
-            while (scanner.hasNext()) {
+            while (scanner.hasNext() || scanner.hasNextEmptyLine()) {
                 while (scanner.hasNextEmptyLine()) {
-                    scanner.next();
+                    scanner.skipEmptyLine();
                     linesNumber++;
                 }
                 digitsOnLine = checkAndAmortizeSize(digitsOnLine, linesNumber);
                 if (scanner.hasNext()) {
                     data = checkAndAmortizeSize(data, digitsCount);
 
-                    Pair token = scanner.next();
-                    data[digitsCount] = Integer.parseInt(token.getFirst());
+                    String token = scanner.next();
+                    data[digitsCount] = Integer.parseInt(token);
                     digitsOnLine[linesNumber]++;
                     digitsCount++;
 
-                    if (token.getSecond()) {
+                    if (scanner.wasLastTokenAtEOF()) {
                         linesNumber++;
                     }
                 }
