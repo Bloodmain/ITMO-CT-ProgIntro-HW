@@ -1,3 +1,3 @@
 javac *.java
-java -ea -jar FastReverseTest.jar Base
+java -ea -jar FastReverseTest.jar OctAbc
 PAUSE

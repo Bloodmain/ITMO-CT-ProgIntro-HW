@@ -89,6 +89,7 @@ public class MyScannerLite {
             if (buffer[bufferCurrentIndex] == '\r') {
                 rLineSeparator = true;
                 bufferCurrentIndex++;
+                isTokenAtEOL = true;
                 continue;
             }
 
