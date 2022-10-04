@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 
 public class Reverse {
 
@@ -41,6 +42,10 @@ public class Reverse {
             }
 
             scanner.close();
+        } catch (IllegalStateException e) {
+            System.out.println("Trying to use closed scanner " + e.getMessage());
+        } catch (NoSuchElementException e) {
+            System.out.println("The input is exhausted" + e.getMessage());
         } catch (IOException e) {
             System.out.println("I/O exception occurred: " + e.getMessage());
         }

@@ -64,7 +64,7 @@ public class ReverseOctAbc {
         } catch (IllegalStateException e) {
             System.out.println("Trying to use closed scanner " + e.getMessage());
         } catch (NoSuchElementException e) {
-            System.out.println("There are no elements in the scanner, that are being tried to be read " + e.getMessage());
+            System.out.println("The input is exhausted" + e.getMessage());
         } catch (IOException e) {
             System.out.println("I/O exception occurred: " + e.getMessage());
         }
