@@ -22,27 +22,21 @@ public class Reverse {
         int numbersCount = 0;
 
         try {
-            while (scanner.hasNext() || scanner.hasNextEmptyLine()) {
-                while (scanner.hasNextEmptyLine()) {
-                    scanner.skipEmptyLine();
-                    linesNumber++;
-                }
+            while (scanner.hasNext()) {
+                linesNumber += scanner.getTokenSkippedLine();
                 numbersOnLine = checkAndAmortizeSize(numbersOnLine, linesNumber);
-                if (scanner.hasNext()) {
-                    data = checkAndAmortizeSize(data, numbersCount);
+                data = checkAndAmortizeSize(data, numbersCount);
 
-                    String token = scanner.next();
-                    data[numbersCount] = Integer.parseInt(token);
-                    numbersOnLine[linesNumber]++;
-                    numbersCount++;
-
-                    if (scanner.wasLastTokenAtEOF()) {
-                        linesNumber++;
-                    }
-                }
+                String token = scanner.next();
+                data[numbersCount] = Integer.parseInt(token);
+                numbersOnLine[linesNumber]++;
+                numbersCount++;
             }
 
+            linesNumber += Integer.max(scanner.getTokenSkippedLine(), 1);
+            numbersOnLine = checkAndAmortizeSize(numbersOnLine, linesNumber);
             scanner.close();
+
         } catch (IllegalStateException e) {
             System.out.println("Trying to use closed scanner: " + e.getMessage());
         } catch (NoSuchElementException e) {

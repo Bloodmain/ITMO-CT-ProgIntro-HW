@@ -35,32 +35,27 @@ public class ReverseOctAbc {
         int numbersCount = 0;
 
         try {
-            while (scanner.hasNext() || scanner.hasNextEmptyLine()) {
-                while (scanner.hasNextEmptyLine()) {
-                    scanner.skipEmptyLine();
-                    linesNumber++;
-                }
+            while (scanner.hasNext()) {
+                linesNumber += scanner.getTokenSkippedLine();
                 numbersOnLine = checkAndAmortizeSize(numbersOnLine, linesNumber);
-                if (scanner.hasNext()) {
-                    data = checkAndAmortizeSize(data, numbersCount);
 
-                    String token = scanner.next().toLowerCase();
-                    if (token.endsWith("o")) {
-                        data[numbersCount] = Integer.parseUnsignedInt(token.substring(0, token.length() - 1), 8);
-                    } else {
-                        data[numbersCount] = Integer.parseInt(toStandardForm(token));
-                    }
+                data = checkAndAmortizeSize(data, numbersCount);
 
-                    numbersOnLine[linesNumber]++;
-                    numbersCount++;
-
-                    if (scanner.wasLastTokenAtEOF()) {
-                        linesNumber++;
-                    }
+                String token = scanner.next().toLowerCase();
+                if (token.endsWith("o")) {
+                    data[numbersCount] = Integer.parseUnsignedInt(token.substring(0, token.length() - 1), 8);
+                } else {
+                    data[numbersCount] = Integer.parseInt(toStandardForm(token));
                 }
+
+                numbersOnLine[linesNumber]++;
+                numbersCount++;
             }
 
+            linesNumber += Integer.max(scanner.getTokenSkippedLine(), 1);
+            numbersOnLine = checkAndAmortizeSize(numbersOnLine, linesNumber);
             scanner.close();
+
         } catch (IllegalStateException e) {
             System.out.println("Trying to use closed scanner: " + e.getMessage());
         } catch (NoSuchElementException e) {
