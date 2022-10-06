@@ -90,15 +90,16 @@ public class MyScannerLite implements AutoCloseable {
                 }
             }
 
-            if (buffer[bufferCurrentIndex] == '\n' || rLineSeparator) {
-                if (buffer[bufferCurrentIndex] == '\n') {
-                    bufferCurrentIndex++;
+            if (buffer[bufferCurrentIndex] == '\n') {
+                if (!rLineSeparator) {
+                    tokenSkippedLine++;
                 }
                 rLineSeparator = false;
-                tokenSkippedLine++;
-                continue;
             } else if (buffer[bufferCurrentIndex] == '\r') {
                 rLineSeparator = true;
+                tokenSkippedLine++;
+            } else if (rLineSeparator) {
+                rLineSeparator = false;
             }
             bufferCurrentIndex++;
         }
