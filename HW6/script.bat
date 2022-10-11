@@ -1,3 +1,3 @@
 javac *.java
-java -ea -jar WsppTest.jar Base
+java -ea -jar WsppTest.jar CountLastL
 PAUSE
