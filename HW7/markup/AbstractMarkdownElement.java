@@ -2,15 +2,15 @@ package markup;
 
 import java.util.List;
 
-public abstract class AbstractMarkdownElement implements MarkupElement {
-    private List<MarkupElement> data;
-    public AbstractMarkdownElement(List<MarkupElement> data) {
+public abstract class AbstractMarkdownElement implements Markupable {
+    private List<Markupable> data;
+    public AbstractMarkdownElement(List<Markupable> data) {
         this.data = data;
     }
 
     @Override
     public void toMarkdown(StringBuilder out) {
-        for (MarkupElement el : data) {
+        for (Markupable el : data) {
             el.toMarkdown(out);
         }
     }

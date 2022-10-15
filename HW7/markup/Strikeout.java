@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Strikeout extends AbstractMarkdownFormat {
 
-    public Strikeout(List<MarkupElement> data) {
+    public Strikeout(List<Markupable> data) {
         super(data);
     }
 

@@ -1,6 +1,6 @@
 package markup;
 
-public class Text implements MarkupElement {
+public class Text implements Markupable {
     private String text;
 
     public Text(String text) {

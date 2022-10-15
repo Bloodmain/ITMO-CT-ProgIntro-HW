@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Strong extends AbstractMarkdownFormat {
 
-    public Strong(List<MarkupElement> data) {
+    public Strong(List<Markupable> data) {
         super(data);
     }
 

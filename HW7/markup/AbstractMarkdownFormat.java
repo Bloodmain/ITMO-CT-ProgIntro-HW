@@ -3,7 +3,7 @@ package markup;
 import java.util.List;
 
 public abstract class AbstractMarkdownFormat extends AbstractMarkdownElement {
-    public AbstractMarkdownFormat(List<MarkupElement> data) {
+    public AbstractMarkdownFormat(List<Markupable> data) {
         super(data);
     }
 
