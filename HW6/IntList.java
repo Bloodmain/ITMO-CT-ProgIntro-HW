@@ -1,8 +1,8 @@
 import java.util.Arrays;
 
 public class IntList {
-    private final int START_ARRAY_SIZE = 1;
-    private final int ARRAY_MULTIPLE_BY = 2;
+    private static final int START_ARRAY_SIZE = 1;
+    private static final int ARRAY_MULTIPLE_BY = 2;
     private int[] data;
     private int length;
 
@@ -23,7 +23,7 @@ public class IntList {
     }
 
     public int get(int i) throws ArrayIndexOutOfBoundsException {
-        if (i >= length) {
+        if (i >= length || i < 0) {
             throw new ArrayIndexOutOfBoundsException("Index is out of range");
         } else {
             return data[i];
@@ -31,8 +31,10 @@ public class IntList {
     }
 
     public void set(int i, int x) throws ArrayIndexOutOfBoundsException {
-        if (i >= length) {
+        if (i > length || i < 0) {
             throw new ArrayIndexOutOfBoundsException("Index is out of range");
+        } else if (i == length) {
+            add(x);
         } else {
             data[i] = x;
         }

@@ -22,11 +22,7 @@ public class WsppCountLastL {
                     wordIndex = 1;
                 }
 
-                if (wordsAllIndexesCount.containsKey(token)) {
-                    wordsAllIndexesCount.put(token, wordsAllIndexesCount.get(token) + 1);
-                } else {
-                    wordsAllIndexesCount.put(token, 1);
-                }
+                wordsAllIndexesCount.put(token, wordsAllIndexesCount.getOrDefault(token, 0) + 1);
 
                 wordsOnThisLine.put(token, wordIndex);
                 wordIndex++;
