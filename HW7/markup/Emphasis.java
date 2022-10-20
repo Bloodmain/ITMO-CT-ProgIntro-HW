@@ -2,14 +2,11 @@ package markup;
 
 import java.util.List;
 
-public class Emphasis extends AbstractMarkdownFormat {
-
-    public Emphasis(List<Markupable> data) {
+public class Emphasis extends AbsFormattedText implements Paragraphable {
+    public Emphasis(List<Paragraphable> data) {
         super(data);
+        this.markdownFormat = "*";
+        this.texFormat = "emph";
     }
 
-    @Override
-    public void toMarkdown(StringBuilder out) {
-        super.toMarkdownWithFormat(out, "*");
-    }
 }

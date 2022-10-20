@@ -2,14 +2,10 @@ package markup;
 
 import java.util.List;
 
-public class Strong extends AbstractMarkdownFormat {
-
-    public Strong(List<Markupable> data) {
+public class Strong extends AbsFormattedText implements Paragraphable {
+    public Strong(List<Paragraphable> data) {
         super(data);
-    }
-
-    @Override
-    public void toMarkdown(StringBuilder out) {
-        super.toMarkdownWithFormat(out, "__");
+        this.markdownFormat = "__";
+        this.texFormat = "textbf";
     }
 }
