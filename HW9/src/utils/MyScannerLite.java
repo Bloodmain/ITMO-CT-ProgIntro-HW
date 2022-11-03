@@ -1,15 +1,19 @@
+package utils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
+import java.util.function.Predicate;
 
 public class MyScannerLite implements AutoCloseable {
     final int BUFFER_SIZE = 1024;
 
     private final Reader reader;
     private final char[] buffer;
-    private CharPredicate isCorrectLetter = Character::isLetter;
+    private Predicate<Character> isCorrectLetter = Character::isLetter;
 
     private String token;
     private int tokenSkippedLine;
@@ -17,8 +21,8 @@ public class MyScannerLite implements AutoCloseable {
     private int bufferCurrentIndex;
     boolean isClosed;
 
-    MyScannerLite(InputStream stream) {
-        reader = new InputStreamReader(stream);
+    public MyScannerLite(InputStream stream) {
+        reader = new InputStreamReader(stream, StandardCharsets.UTF_8);
         buffer = new char[BUFFER_SIZE];
         token = "";
         tokenSkippedLine = 0;
@@ -27,8 +31,8 @@ public class MyScannerLite implements AutoCloseable {
         isClosed = false;
     }
 
-    public void setCorrectLetter(CharPredicate delimiter) {
-        isCorrectLetter = delimiter;
+    public void setCorrectLetter(Predicate<Character> correctLetter) {
+        isCorrectLetter = correctLetter;
     }
 
     private void readToBuffer() throws IOException {
@@ -118,7 +122,7 @@ public class MyScannerLite implements AutoCloseable {
 
     public String next() throws IllegalStateException, IOException, NoSuchElementException {
         if (!hasNext()) {
-            throw new NoSuchElementException("No tokens in stream");
+            throw new NoSuchElementException("No tokens in.txt stream");
         }
 
         String resToken = token;
