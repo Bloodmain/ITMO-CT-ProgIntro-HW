@@ -18,7 +18,7 @@ public class Md2Html {
         for (int i = 0; i < line.length(); i++) {
             if (line.charAt(i) != '#') {
                 if (line.charAt(i) != ' ') {
-                    break;
+                    return 0;
                 } else {
                     return i;
                 }
@@ -119,24 +119,23 @@ public class Md2Html {
             indexOfPairFormat[i] = -1;
         }
 
-        for (int closingPairFormat = 0; closingPairFormat < line.length(); closingPairFormat++) {
-            String format = getFormatFrom(line, closingPairFormat);
+        for (int pairClose = 0; pairClose < line.length(); pairClose++) {
+            String format = getFormatFrom(line, pairClose);
             if (format != null) {
-
-                int openPairFormat = formatLastIndex.get(format);
-                if (openPairFormat != -1) {
-                    indexOfPairFormat[openPairFormat] = closingPairFormat;
-                    indexOfPairFormat[closingPairFormat] = line.length();
+                int pairOpen = formatLastIndex.get(format);
+                if (pairOpen != -1) {
+                    indexOfPairFormat[pairOpen] = pairClose;
+                    indexOfPairFormat[pairClose] = line.length();
                     for (String el : Md2Html.FORMATS) {
-                        if (formatLastIndex.get(el) >= openPairFormat) {
+                        if (formatLastIndex.get(el) >= pairOpen) {
                             formatLastIndex.put(el, -1);
                         }
                     }
                 } else {
-                    formatLastIndex.put(format, closingPairFormat);
+                    formatLastIndex.put(format, pairClose);
                 }
                 if (format.length() > 1) {
-                    closingPairFormat++;
+                    pairClose++;
                 }
             }
         }
@@ -164,7 +163,7 @@ public class Md2Html {
                 buffer.append(token);
                 token = (scanner.hasNext() ? scanner.next() : null);
                 if (token == null || scanner.getTokenSkippedLine() > 1) {
-                    Md2Html.highlight(buffer.toString()).toHtml(result);
+                    highlight(buffer.toString()).toHtml(result);
                     result.append(System.lineSeparator());
                     buffer.setLength(0);
                 } else {
