@@ -8,20 +8,14 @@ import java.util.*;
 import java.util.function.Predicate;
 
 public class Md2Html {
-    private static final List<String> FORMATS = List.of("*", "_", "**", "__", "--", "`");
-    private static final Predicate<Character> IS_FORMAT = o -> o.equals('_') || o.equals('*') || o.equals('-')
-            || o.equals('`');
-    private static final Predicate<Character> IS_SPEC_HTML_SYMBOL = o -> o.equals('\\') || o.equals('>') ||
-            o.equals('<') || o.equals('&');
+    private static final List<String> FORMATS = List.of("*", "_", "**", "__", "--", "`", "[", "]", "(", ")");
+    private static final Predicate<Character> IS_FORMAT = o -> "_*-`[]()".indexOf(o) != -1;
+    private static final Predicate<Character> IS_SPEC_HTML_SYMBOL = o -> "\\<>&".indexOf(o) != -1;
 
     private static int checkForHeader(String line) {
         for (int i = 0; i < line.length(); i++) {
-            if (line.charAt(i) != '#') {
-                if (line.charAt(i) != ' ') {
-                    return 0;
-                } else {
-                    return i;
-                }
+            if (line.charAt(i) != '#' || i > 5) {
+                return (line.charAt(i) == ' ' ? i : 0);
             }
         }
         return 0;
@@ -101,11 +95,44 @@ public class Md2Html {
                                 formatsIndexes[start], formatsIndexes)));
                         start = formatsIndexes[start] + 1;
                     }
+                    case "[" -> {
+                        int hrefStart = formatsIndexes[start] + 1;
+                        if (hrefStart > line.length() || line.charAt(hrefStart) != '(') {
+                            formatsIndexes[formatsIndexes[start]] = -1;
+                            formatsIndexes[start] = -1;
+                            lastBound = start;
+                            continue;
+                        }
+                        String href = line.substring(hrefStart + 1, formatsIndexes[hrefStart]);
+                        res.add(new Link(extractElements(line, start + 1,
+                                hrefStart - 1, formatsIndexes), href));
+                        start = formatsIndexes[hrefStart] + 1;
+                    }
                 }
             }
             lastBound = start;
         }
         return res;
+    }
+
+    private static String getPairedFormat(String format) {
+        switch (format) {
+            case "[" -> {
+                return "]";
+            }
+            case "(" -> {
+                return ")";
+            }
+            case ")" -> {
+                return "(";
+            }
+            case "]" -> {
+                return "[";
+            }
+            default -> {
+                return format;
+            }
+        }
     }
 
     private static List<Paragraphable> proceedHighlighting(String line) {
@@ -115,14 +142,15 @@ public class Md2Html {
         }
 
         int[] indexOfPairFormat = new int[line.length()];
-        for (int i = 0; i < line.length(); i++) {
-            indexOfPairFormat[i] = -1;
-        }
+        Arrays.fill(indexOfPairFormat, -1);
 
         for (int pairClose = 0; pairClose < line.length(); pairClose++) {
             String format = getFormatFrom(line, pairClose);
             if (format != null) {
-                int pairOpen = formatLastIndex.get(format);
+                if (format.equals("(") && (pairClose == 0 || line.charAt(pairClose - 1) != ']')) {
+                    continue;
+                }
+                int pairOpen = formatLastIndex.get(getPairedFormat(format));
                 if (pairOpen != -1) {
                     indexOfPairFormat[pairOpen] = pairClose;
                     indexOfPairFormat[pairClose] = line.length();
