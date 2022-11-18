@@ -11,11 +11,8 @@ public class MnkState implements GameStateForPlayer {
             Cell.E, '.'
     );
 
-    public MnkState(Cell[][] field, Predicate<Move> moveChecker) {
-        this.field = new Cell[field.length][field[0].length];
-        for (int i = 0; i < field.length; ++i) {
-            this.field[i] = Arrays.copyOf(field[i], field[i].length);
-        }
+    public MnkState(final Cell[][] field, final Predicate<Move> moveChecker) {
+        this.field = field;
         this.moveChecker = moveChecker;
     }
 

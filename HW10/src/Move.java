@@ -1,14 +1,12 @@
 public class Move {
     private final int row;
     private final int col;
-    private final boolean surrender;
-    private final boolean integrity;
+    private final MoveType type;
 
-    public Move(int row, int col, boolean surrender, boolean integrity) {
+    public Move(int row, int col, MoveType type) {
         this.row = row;
         this.col = col;
-        this.surrender = surrender;
-        this.integrity = integrity;
+        this.type = type;
     }
 
     public int getRow() {
@@ -19,11 +17,12 @@ public class Move {
         return col;
     }
 
-    public boolean isSurrender() {
-        return surrender;
+    public MoveType getType() {
+        return type;
     }
 
-    public boolean isIntegral() {
-        return integrity;
+    @Override
+    public String toString() {
+        return String.format("Move at (row=%d, column=%d)", row + 1, col + 1);
     }
 }

@@ -1,3 +1,3 @@
 public interface Player {
-    Move move(GameStateForPlayer gameState, int surrenderCommand);
+    Move move(GameStateForPlayer gameState);
 }

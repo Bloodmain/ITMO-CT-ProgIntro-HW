@@ -31,24 +31,19 @@ public class Game {
         log(String.format("It's player %d 's turn!", playerNumber));
         log(String.format("Current game state:\n%s", state));
 
-        log("Enter row and column or -1 to surrender:");
         Move move;
         try {
-            move = player.move(state, -1);
-            while (!move.isIntegral() || (!state.isValidMove(move) && !move.isSurrender())) {
-                log("Oh, sorry, incorrect move:(\nTry entering row and column again (or -1 to surrender):");
-                move = player.move(state, -1);
-            }
+            move = player.move(state);
         } catch (Exception e) {
-            log(String.format("Player %d failed to move. Player %d won!", playerNumber, oppositePlayer));
+            log(String.format("Player %d failed to move.\nPlayer %d won!", playerNumber, oppositePlayer));
             return oppositePlayer;
         }
 
-        if (move.isSurrender()) {
+        if (move.getType() == MoveType.SURRENDER) {
             log(String.format("Player %d surrendered.\nPlayer %d won!", playerNumber, oppositePlayer));
             return oppositePlayer;
         }
-
+        log(String.format("%s\n", move));
         Result res = board.makeMove(move);
         if (res == Result.UNFINISHED) {
             return -1;
