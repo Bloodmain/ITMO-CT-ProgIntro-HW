@@ -1,3 +1,5 @@
+package game;
+
 public class Move {
     private final int row;
     private final int col;

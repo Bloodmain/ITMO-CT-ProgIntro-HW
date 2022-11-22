@@ -1,3 +1,5 @@
+package game;
+
 public class SequentialPlayer implements Player {
     @Override
     public Move move(final GameStateForPlayer position) {

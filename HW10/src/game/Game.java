@@ -1,3 +1,5 @@
+package game;
+
 public class Game {
     private final Player player1;
     private final Player player2;
