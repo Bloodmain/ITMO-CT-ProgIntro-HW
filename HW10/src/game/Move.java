@@ -1,5 +1,7 @@
 package game;
 
+import java.util.Objects;
+
 public class Move {
     private final int row;
     private final int col;
@@ -26,5 +28,18 @@ public class Move {
     @Override
     public String toString() {
         return String.format("Move at (row=%d, column=%d)", row + 1, col + 1);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Move move) {
+            return move.row == this.row && move.col == this.col && move.type == this.type;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return (Integer.hashCode(row) * 17 + Integer.hashCode(col)) * 17 + Objects.hashCode(type);
     }
 }

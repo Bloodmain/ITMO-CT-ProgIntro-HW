@@ -4,12 +4,11 @@ import java.util.Arrays;
 import java.util.function.Predicate;
 
 public class MnkBoard implements Board {
-    private final int n;
-    private final int m;
-    private final int k;
-    private final Cell[][] field;
-    private Cell turn;
-    private int emptyCells;
+    protected final int n;
+    protected final int m;
+    protected final int k;
+    protected Cell[][] field;
+    protected int emptyCells;
 
 
     public MnkBoard(int m, int n, int k) {
@@ -20,7 +19,6 @@ public class MnkBoard implements Board {
         for (Cell[] row : this.field) {
             Arrays.fill(row, Cell.E);
         }
-        this.turn = Cell.X;
         this.emptyCells = m * n;
     }
 
@@ -39,7 +37,7 @@ public class MnkBoard implements Board {
     }
 
     @Override
-    public Result makeMove(Move move) {
+    public Result makeMove(Move move, Cell turn) {
         if (!moveChecker.test(move)) {
             return Result.LOSE;
         }
@@ -58,8 +56,16 @@ public class MnkBoard implements Board {
             return Result.DRAW;
         }
 
-        turn = turn == Cell.X ? Cell.O : Cell.X;
         return Result.UNFINISHED;
+    }
+
+    @Override
+    public void clearBoard() {
+        this.field = new Cell[n][m];
+        for (Cell[] row : this.field) {
+            Arrays.fill(row, Cell.E);
+        }
+        this.emptyCells = m * n;
     }
 
     private int countInARowWithDeltas(Move move, int di, int dj) {

@@ -6,10 +6,14 @@ import java.util.function.Predicate;
 public class MnkState implements GameStateForPlayer {
     private final Cell[][] field;
     private final Predicate<Move> moveChecker;
-    private final Map<Cell, Character> cellMapping = Map.of(
-            Cell.X, 'X',
-            Cell.O, 'O',
-            Cell.E, '.'
+
+    private final Map<Cell, String> cellMapping = Map.of(
+            Cell.P1, Colors.ANSI_RED + "X" + Colors.ANSI_RESET,
+            Cell.P2, Colors.ANSI_BLUE + "O" + Colors.ANSI_RESET,
+            Cell.P3, Colors.ANSI_GREEN + "-" + Colors.ANSI_RESET,
+            Cell.P4, Colors.ANSI_YELLOW + "|" + Colors.ANSI_RESET,
+            Cell.E, Colors.ANSI_WHITE + "." + Colors.ANSI_RESET,
+            Cell.B, Colors.ANSI_BLACK + "B" + Colors.ANSI_RESET
     );
 
     public MnkState(final Cell[][] field, final Predicate<Move> moveChecker) {

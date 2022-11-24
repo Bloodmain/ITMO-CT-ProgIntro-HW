@@ -46,7 +46,7 @@ public class Game {
             return oppositePlayer;
         }
         log(String.format("%s\n", move));
-        Result res = board.makeMove(move);
+        Result res = board.makeMove(move, playerNumber == 1 ? Cell.P1 : Cell.P2);
         if (res == Result.UNFINISHED) {
             return -1;
         } else {
