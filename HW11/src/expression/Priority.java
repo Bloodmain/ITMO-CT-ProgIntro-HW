@@ -1,21 +1,21 @@
 package expression;
 
 public class Priority {
-    private final int leftPriority;
-    private final int rightPriority;
+    private final int priority;
+    private final int leftBound;
     private final int rightBound;
 
-    public Priority(int leftPriority, int rightPriority, int rightBound) {
-        this.leftPriority = leftPriority;
-        this.rightPriority = rightPriority;
+    public Priority(int priority, int leftBound, int rightBound) {
+        this.priority = priority;
+        this.leftBound = leftBound;
         this.rightBound = rightBound;
     }
 
     public boolean compareLeft(Priority that) {
-        return that.leftPriority < this.leftPriority;
+        return that.priority < this.leftBound;
     }
 
     public boolean compareRight(Priority that) {
-        return that.rightPriority < this.rightBound;
+        return that.priority < this.rightBound;
     }
 }

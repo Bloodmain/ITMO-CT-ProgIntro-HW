@@ -2,7 +2,7 @@ package expression;
 
 public class Const implements PriorityExpression {
     private final int value;
-    private final static Priority priority = new Priority(10, 10,0);
+    private final static Priority priority = new Priority(10, 0,0);
 
     public Const(final int value) {
         this.value = value;
