@@ -8,13 +8,29 @@ public class Variable implements PriorityExpression {
     }
 
     @Override
+    public int evaluate(final int x, final int y, final int z) {
+        return (name.equals("x") ? x : (name.equals("y") ? y : z));
+    }
+
+    @Override
     public int evaluate(final int x) {
         return x;
     }
 
     @Override
+    public double evaluate(final double x) {
+        return x;
+    }
+
+
+    @Override
     public Priority getPriority() {
         return priority;
+    }
+
+    @Override
+    public char getOperationChar() {
+        return ' ';
     }
 
     @Override
