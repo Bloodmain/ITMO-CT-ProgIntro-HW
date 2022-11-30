@@ -44,11 +44,6 @@ public class Const implements PriorityExpression {
     }
 
     @Override
-    public char getOperationChar() {
-        return ' ';
-    }
-
-    @Override
     public int hashCode() {
         return Double.hashCode(value);
     }

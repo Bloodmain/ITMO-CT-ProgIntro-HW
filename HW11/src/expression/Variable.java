@@ -22,17 +22,10 @@ public class Variable implements PriorityExpression {
         return x;
     }
 
-
     @Override
     public Priority getPriority() {
         return priority;
     }
-
-    @Override
-    public char getOperationChar() {
-        return ' ';
-    }
-
     @Override
     public String toString() {
         return name;
