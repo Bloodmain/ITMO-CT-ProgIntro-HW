@@ -1,7 +1,7 @@
 package expression;
 
 public class BaseParser {
-    private final static char END = '\0';
+    protected final static char END = '\0';
     protected final CharSource source;
     protected char ch;
 
@@ -59,5 +59,11 @@ public class BaseParser {
             }
         }
         throw source.error("Expected one of the symbols '" + expected + "' but found '" + ch + "'");
+    }
+
+    public void asserEOF() {
+        if (!checkEOF()) {
+            throw source.error("Expected EOF but found '" + ch + "'");
+        }
     }
 }

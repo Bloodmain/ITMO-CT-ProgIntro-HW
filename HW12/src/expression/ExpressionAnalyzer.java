@@ -10,9 +10,10 @@ public final class ExpressionAnalyzer {
             "*", 10,
             "/", 10
     );
+    private static final String AFTER_VARIABLES = " \t\n+-*/)" + BaseParser.END;
 
     public static PriorityExpression parse(CharSource source) {
-        return new ExpressionParser(source).parseExpression(-1, null);
+        return new ExpressionParser(source).parse();
     }
 
     public static PriorityExpression parse(String source) {
@@ -27,6 +28,12 @@ public final class ExpressionAnalyzer {
 
         private void skipWhitespaces() {
             while (testAndConsume(' ') || testAndConsume('\t') || testAndConsume('\n')) {}
+        }
+
+        private PriorityExpression parse() {
+            PriorityExpression res = parseExpression(-1, null);
+            asserEOF();
+            return res;
         }
 
         private PriorityExpression parseExpression(int returnOnPriority, PriorityExpression left) {
@@ -96,6 +103,7 @@ public final class ExpressionAnalyzer {
                 res.append(consume());
             }
             try {
+                assertNextOneOfThe(ExpressionAnalyzer.AFTER_VARIABLES);
                 return new Const(Integer.parseInt(res.toString()));
             } catch (NumberFormatException e) {
                 throw source.error("Expected const, but didn't find it");
@@ -104,6 +112,7 @@ public final class ExpressionAnalyzer {
 
         private PriorityExpression parseVariable() {
             char variable = consume();
+            assertNextOneOfThe(ExpressionAnalyzer.AFTER_VARIABLES);
             return new Variable(String.valueOf(variable));
         }
 
