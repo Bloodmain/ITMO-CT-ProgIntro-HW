@@ -1,5 +1,6 @@
 package expression;
 
+import java.util.Objects;
 import java.util.function.BinaryOperator;
 
 public abstract class BinaryOperation implements PriorityExpression {
@@ -65,7 +66,7 @@ public abstract class BinaryOperation implements PriorityExpression {
 
     @Override
     public int hashCode() {
-        return toString().hashCode();
+        return Objects.hash(leftOperand, rightOperand, operatorSymbol, operatorInt, operatorDouble);
     }
 
     @Override

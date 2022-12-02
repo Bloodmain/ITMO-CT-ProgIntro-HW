@@ -118,7 +118,6 @@ class ExpressionAnalyzerTest {
         assertInvalid("xy");
         assertInvalid("-");
         assertInvalid("+");
-        assertInvalid("--3");
         assertInvalid("-3 3");
         assertInvalid("+3");
         assertInvalid("+3+1");
