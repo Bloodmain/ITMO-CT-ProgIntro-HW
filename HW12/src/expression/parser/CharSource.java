@@ -1,4 +1,4 @@
-package expression;
+package expression.parser;
 
 public interface CharSource {
     boolean hasNext();

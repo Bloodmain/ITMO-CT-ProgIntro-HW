@@ -1,4 +1,4 @@
-package expression;
+package expression.parser;
 
 public class BaseParser {
     protected final static char END = '\0';
@@ -15,6 +15,11 @@ public class BaseParser {
         char now = ch;
         ch = source.hasNext() ? source.next() : END;
         return now;
+    }
+    public void skipWhitespaces() {
+        while (Character.isWhitespace(ch)) {
+            consume();
+        }
     }
 
     public boolean test(char expected) {
