@@ -74,7 +74,7 @@ public class ParserTestSet<E extends ToMiniString, C> {
 
         counter.test(() -> {
             final E parsed = parse(mangled, names, true);
-            Functional.allValues(TEST_VALUES, 3).forEach(values -> check(expected, parsed, names, values));
+            Functional.allValues(TEST_VALUES, 3).forEach(values -> check(expected, parsed, names, values, mangled));
         });
     }
 
@@ -110,9 +110,9 @@ public class ParserTestSet<E extends ToMiniString, C> {
                 Functional.map(vars, (i, var) -> Pair.of(var.first(), args -> args.get(i)))
         ));
 
-        check(expected, fullParsed, variables, tester.random().random(variables.size(), ExtendedRandom::nextInt));
+        check(expected, fullParsed, variables, tester.random().random(variables.size(), ExtendedRandom::nextInt), full);
         if (this.safe) {
-            check(expected, safeParsed, variables, tester.random().random(variables.size(), ExtendedRandom::nextInt));
+            check(expected, safeParsed, variables, tester.random().random(variables.size(), ExtendedRandom::nextInt), safe);
         }
     }
 
@@ -164,7 +164,8 @@ public class ParserTestSet<E extends ToMiniString, C> {
             final TExpression expectedExpression,
             final E expression,
             final List<String> variables,
-            final List<Integer> values
+            final List<Integer> values,
+            final String unparsed
     ) {
         counter.test(() -> {
             final Either<Reason, Integer> answer = eval(expectedExpression, values);
@@ -174,7 +175,8 @@ public class ParserTestSet<E extends ToMiniString, C> {
             try {
                 final C actual = kind.kind.evaluate(expression, variables, kind.kind.fromInts(values));
                 counter.checkTrue(answer.isRight(), "Error expected for %s", args);
-                Asserts.assertEquals(String.format("f(%s)\n%s", args, expression), answer.getRight(), actual);
+                final String message = String.format("f(%s)%n\twhere f=%s%n\tyour f=%s", args, unparsed, expression);
+                Asserts.assertEquals(message, answer.getRight(), actual);
             } catch (final Exception e) {
                 if (answer.isRight()) {
                     counter.fail(e, "No error expected for %s", args);

@@ -1,41 +1,36 @@
 package expression;
 
+import java.util.Objects;
+
 public class Const implements PriorityExpression {
     private final static Priority priority = new Priority(10, 0,0);
-    private final double value;
-    private final int type;
+    private final Number value;
 
     public Const(final int value) {
         this.value = value;
-        this.type = 0;
     }
 
     public Const(final double value) {
         this.value = value;
-        this.type = 1;
     }
 
     @Override
     public int evaluate(final int x, final int y, final int z) {
-        return (int)value;
+        return value.intValue();
     }
     @Override
     public int evaluate(int x) {
-        return (int)value;
+        return value.intValue();
     }
 
     @Override
     public double evaluate(double x) {
-        return value;
+        return value.doubleValue();
     }
 
     @Override
     public String toString() {
-        if (type==0) {
-            return String.valueOf((int)value);
-        } else {
-            return String.valueOf(value);
-        }
+        return String.valueOf(value);
     }
 
     @Override
@@ -45,13 +40,18 @@ public class Const implements PriorityExpression {
 
     @Override
     public int hashCode() {
-        return Double.hashCode(value);
+        return Objects.hashCode(value);
+    }
+
+    @Override
+    public String getOperatorSymbol() {
+        return "";
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Const that) {
-            return value == that.value;
+            return value.equals(that.value);
         }
         return false;
     }

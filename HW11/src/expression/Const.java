@@ -44,6 +44,11 @@ public class Const implements PriorityExpression {
     }
 
     @Override
+    public String getOperatorSymbol() {
+        return "";
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj instanceof Const that) {
             return value.equals(that.value);

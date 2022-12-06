@@ -26,6 +26,12 @@ public class Variable implements PriorityExpression {
     public Priority getPriority() {
         return priority;
     }
+
+    @Override
+    public String getOperatorSymbol() {
+        return "";
+    }
+
     @Override
     public String toString() {
         return name;

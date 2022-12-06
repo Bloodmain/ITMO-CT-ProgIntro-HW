@@ -1,21 +1,18 @@
 package expression;
 
+import java.util.Objects;
 import java.util.function.UnaryOperator;
 
-public class UnaryOperation implements PriorityExpression {
+public abstract class UnaryOperation implements PriorityExpression {
     private final PriorityExpression operand;
     private final UnaryOperator<Integer> operatorInt;
     private final UnaryOperator<Double> operatorDouble;
-    private final char operatorSymbol;
-    private final Priority priority;
 
-    public UnaryOperation(PriorityExpression operand, Priority priority, UnaryOperator<Integer> operatorInt,
-                          UnaryOperator<Double> operatorDouble, char operatorSymbol) {
+    public UnaryOperation(PriorityExpression operand, UnaryOperator<Integer> operatorInt,
+                          UnaryOperator<Double> operatorDouble) {
         this.operand = operand;
         this.operatorInt = operatorInt;
         this.operatorDouble = operatorDouble;
-        this.operatorSymbol = operatorSymbol;
-        this.priority = priority;
     }
 
     @Override
@@ -34,27 +31,22 @@ public class UnaryOperation implements PriorityExpression {
     }
 
     @Override
-    public Priority getPriority() {
-        return priority;
-    }
-
-    @Override
     public String toString() {
-        return operatorSymbol + "(" + operand.toString() + ")";
+        return getOperatorSymbol() + "(" + operand.toString() + ")";
     }
 
     @Override
     public String toMiniString() {
-        if (priority.compareRight(operand.getPriority())) {
-            return operatorSymbol + "(" + operand.toMiniString() + ")";
+        if (getPriority().compareRight(operand.getPriority())) {
+            return getOperatorSymbol() + "(" + operand.toMiniString() + ")";
         }
-        return operatorSymbol + " " + operand.toMiniString();
+        return getOperatorSymbol() + " " + operand.toMiniString();
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof UnaryOperation that) {
-            return this.operatorSymbol == that.operatorSymbol &&
+            return this.getClass() == that.getClass() &&
                     this.operand.equals(that.operand);
         }
         return false;
@@ -62,6 +54,6 @@ public class UnaryOperation implements PriorityExpression {
 
     @Override
     public int hashCode() {
-        return toString().hashCode();
+        return Objects.hash(operand, getOperatorSymbol(), operatorInt, operatorDouble);
     }
 }
