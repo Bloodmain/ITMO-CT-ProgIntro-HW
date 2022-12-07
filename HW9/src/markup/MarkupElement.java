@@ -1,5 +1,4 @@
 package markup;
 
-public interface MarkupElement {
-    void toHtml(StringBuilder out);
+public interface MarkupElement extends Markdownable, Texable, Htmlable {
 }

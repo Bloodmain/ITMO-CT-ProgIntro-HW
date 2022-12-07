@@ -7,5 +7,6 @@ public class Strikeout extends AbsFormattedText implements Paragraphable {
         super(data);
         this.markdownFormat = "~";
         this.texFormat = "textst";
+        this.htmlFormat = "s";
     }
 }

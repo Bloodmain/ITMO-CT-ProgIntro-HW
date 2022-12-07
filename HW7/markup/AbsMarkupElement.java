@@ -18,4 +18,11 @@ public abstract class AbsMarkupElement implements MarkupElement {
             el.toMarkdown(out);
         }
     }
+
+    @Override
+    public void toHtml(StringBuilder out) {
+        for (MarkupElement el : data) {
+            el.toHtml(out);
+        }
+    }
 }

@@ -1,3 +1,3 @@
 javac *.java
-java -ea -jar WordStatTest.jar Base
+java -ea -jar WordStatTest.jar Shingles
 PAUSE

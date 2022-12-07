@@ -1,4 +1,4 @@
 package markup;
 
-public interface Paragraphable extends MarkupElement {
+public interface Paragraphable extends MarkupElement{
 }

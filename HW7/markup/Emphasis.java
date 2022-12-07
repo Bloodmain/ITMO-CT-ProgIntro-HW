@@ -7,6 +7,7 @@ public class Emphasis extends AbsFormattedText implements Paragraphable {
         super(data);
         this.markdownFormat = "*";
         this.texFormat = "emph";
+        this.htmlFormat = "em";
     }
 
 }

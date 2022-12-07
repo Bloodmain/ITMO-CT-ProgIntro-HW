@@ -55,7 +55,7 @@ public abstract class BinaryOperation implements PriorityExpression {
 
     @Override
     public int hashCode() {
-        return Objects.hash(leftOperand, rightOperand, getOperatorSymbol(), operatorInt, operatorDouble);
+        return Objects.hash(leftOperand, rightOperand, this.getClass(), operatorInt, operatorDouble);
     }
 
     @Override

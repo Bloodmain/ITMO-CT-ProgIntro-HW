@@ -19,7 +19,7 @@ public class Reverse {
 
         while (scanner.hasNextLine()) {
             digitsOnLine = checkAndAmortizeSize(digitsOnLine, linesNumber);
-z
+
             Scanner lineScanner = new Scanner(scanner.nextLine());
 
             while (lineScanner.hasNextInt()) {

@@ -60,7 +60,7 @@ public class WordStatWordsShingles {
                 reader.close();
             }
 
-        } catch (FileNotFoundException) {
+        } catch (FileNotFoundException e) {
             System.out.println("Input file not found: " + e.getMessage());
         } catch (IOException e) {
             System.out.println("I/O exception occurred: " + e.getMessage());

@@ -54,6 +54,6 @@ public abstract class UnaryOperation implements PriorityExpression {
 
     @Override
     public int hashCode() {
-        return Objects.hash(operand, getOperatorSymbol(), operatorInt, operatorDouble);
+        return Objects.hash(operand, this.getClass(), operatorInt, operatorDouble);
     }
 }

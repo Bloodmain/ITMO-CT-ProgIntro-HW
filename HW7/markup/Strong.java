@@ -7,5 +7,6 @@ public class Strong extends AbsFormattedText implements Paragraphable {
         super(data);
         this.markdownFormat = "__";
         this.texFormat = "textbf";
+        this.htmlFormat = "strong";
     }
 }

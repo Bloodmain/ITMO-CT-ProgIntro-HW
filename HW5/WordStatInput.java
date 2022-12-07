@@ -19,7 +19,10 @@ public class WordStatInput {
             scanner.setCorrectLetter(WordStatInput::isWordSymbol);
             while (scanner.hasNext()) {
                 String token = scanner.next();
-                allWordsRaw[wordsCounter] = token;
+                if (wordsCounter >= allWordsRaw.length) {
+                    allWordsRaw = Arrays.copyOf(allWordsRaw, allWordsRaw.length * 2);
+                }
+                allWordsRaw[wordsCounter] = token.toLowerCase();
                 wordsCounter++;
             }
 

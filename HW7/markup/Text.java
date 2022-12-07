@@ -16,4 +16,9 @@ public class Text implements MarkupElement, Paragraphable {
     public void toTex(StringBuilder out) {
         out.append(data);
     }
+
+    @Override
+    public void toHtml(StringBuilder out) {
+        out.append(data);
+    }
 }

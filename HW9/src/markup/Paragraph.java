@@ -3,9 +3,15 @@ package markup;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Paragraph extends AbsFormattedText {
+public class Paragraph extends AbsMarkupElement implements Listable {
     public Paragraph(List<Paragraphable> data) {
-        super(data);
-        this.htmlFormat = "p";
+        this.data = new ArrayList<>(data);
+    }
+
+    @Override
+    public void toHtml(StringBuilder out) {
+        out.append("<").append("p").append(">");
+        super.toHtml(out);
+        out.append("</").append("p").append(">");
     }
 }
