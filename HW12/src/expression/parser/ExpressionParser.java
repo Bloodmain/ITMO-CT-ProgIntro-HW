@@ -62,7 +62,7 @@ public final class ExpressionParser implements TripleParser {
                 op = "+";
             } else if (test('-')) {
                 op = "-";
-            } else if (test("*")) {
+            } else if (test('*')) {
                 op = "*";
             } else if (test('/')) {
                 op = "/";

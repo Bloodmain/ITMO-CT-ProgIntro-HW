@@ -26,15 +26,6 @@ public class BaseParser {
         return ch == expected;
     }
 
-    public boolean test(String expected) {
-        for (int i = 0; i < expected.length(); ++i) {
-            if (!test(expected.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public boolean checkEOF() {
         return ch == END;
     }
@@ -45,6 +36,14 @@ public class BaseParser {
             return true;
         }
         return false;
+    }
+
+    public void assertAndConsume(String expected) {
+        for (int i = 0; i < expected.length(); ++i) {
+            if (!testAndConsume(expected.charAt(i))) {
+                throw source.error("Expected '" + expected + "' but found '" + ch + "'");
+            }
+        }
     }
 
     public boolean checkBounds(char leftBound, char rightBound) {
