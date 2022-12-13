@@ -1,7 +1,7 @@
 package expression;
 
 public class Add extends BinaryOperation {
-    private static final Priority PRIORITY = new Priority(0, 0,0);
+    private static final Priority PRIORITY = new Priority(1, 1,1);
     public Add(PriorityExpression leftOperand, PriorityExpression rightOperand) {
         super(leftOperand, rightOperand, (a, b) -> a + b, (a, b) -> a + b);
     }

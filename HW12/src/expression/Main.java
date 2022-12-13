@@ -7,6 +7,7 @@ public class Main {
     public static void main(String[] args) {
         TripleParser parser = new ExpressionParser();
         TripleExpression expr = parser.parse("x * (x - 2)*x + 1");
+        int b = 1;
         System.out.println(expr);
         System.out.println(expr.toMiniString());
         if (args.length < 3) {

@@ -10,9 +10,12 @@ public final class ExpressionParser implements TripleParser {
             "-", 5,
             "*", 10,
             "/", 10,
-            "--", 10
+            "--", 10,
+            "count", 10,
+            "set", 0,
+            "clear", 0
     );
-    private static final String AFTER_VARIABLES = "+-*/)" + BaseParser.END;
+    private static final String AFTER_VARIABLES = "+-*/)sc" + BaseParser.END;
 
     public PriorityExpression parse(CharSource source) {
         return new ExpressionAnalyzer(source).parse();
@@ -51,6 +54,9 @@ public final class ExpressionParser implements TripleParser {
                         skipWhitespaces();
                         left = parseNegate();
                     }
+                } else if (testAndConsume('c')) {
+                    assertAndConsume("ount");
+                    left = parseBitCount();
                 } else {
                     left = parseConst(false);
                 }
@@ -66,6 +72,18 @@ public final class ExpressionParser implements TripleParser {
                 op = "*";
             } else if (test('/')) {
                 op = "/";
+            } else if (test('s')) {
+                if (ExpressionParser.OPERATION_PRIORITIES.get("set") <= returnOnPriority) {
+                    return left;
+                }
+                assertAndConsume("se");
+                op = "set";
+            } else if (test('c')) {
+                if (ExpressionParser.OPERATION_PRIORITIES.get("clear") <= returnOnPriority) {
+                    return left;
+                }
+                assertAndConsume("clea");
+                op = "clear";
             } else {
                 return left;
             }
@@ -88,6 +106,12 @@ public final class ExpressionParser implements TripleParser {
                 case "*" -> {
                     res = new Multiply(left, right);
                 }
+                case "set" -> {
+                    res = new SetBit(left, right);
+                }
+                case "clear" -> {
+                    res = new ClearBit(left, right);
+                }
                 default -> {
                     res = new Divide(left, right);
                 }
@@ -98,6 +122,10 @@ public final class ExpressionParser implements TripleParser {
             } else {
                 return parseExpression(returnOnPriority, res);
             }
+        }
+
+        private PriorityExpression parseBitCount() {
+            return new BitCount(parseExpression(ExpressionParser.OPERATION_PRIORITIES.get("count"), null));
         }
 
         private PriorityExpression parseNegate() {

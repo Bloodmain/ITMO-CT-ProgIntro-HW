@@ -19,6 +19,11 @@ public final class Operations {
     public static final Operation MULTIPLY  = binary("*", 2001, (a, b) -> a * b);
     public static final Operation DIVIDE    = binary("/", 2002, (a, b) -> b == 0 ? Reason.DBZ.error() : a / b);
 
+    public static final Operation SET = binary("set", 202, (a, b) -> a | (1 << b));
+    @SuppressWarnings("IntegerMultiplicationImplicitCastToLong")
+    public static final Operation CLEAR = binary("clear", 202, (a, b) -> a & ~(1 << b));
+    public static final Operation COUNT = unary("count", a -> Integer.bitCount((int) a));
+
     private Operations() {
     }
 
