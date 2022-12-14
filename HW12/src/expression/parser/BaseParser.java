@@ -22,6 +22,12 @@ public class BaseParser {
         }
     }
 
+    public void assertNextWhiteSpace() {
+        if (!Character.isWhitespace(ch)) {
+            throw source.error("Expected whitespace but found '" + ch + "'");
+        }
+    }
+
     public boolean test(char expected) {
         return ch == expected;
     }
@@ -56,16 +62,7 @@ public class BaseParser {
         }
     }
 
-    public void assertNextOneOfThe(String expected) {
-        for (int i = 0; i < expected.length(); ++i) {
-            if (test(expected.charAt(i))) {
-                return;
-            }
-        }
-        throw source.error("Expected one of the symbols '" + expected + "' but found '" + ch + "'");
-    }
-
-    public void asserEOF() {
+    public void assertEOF() {
         if (!checkEOF()) {
             throw source.error("Expected EOF but found '" + ch + "'");
         }

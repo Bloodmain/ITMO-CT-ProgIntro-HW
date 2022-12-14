@@ -20,6 +20,8 @@ public final class ParserTest {
             .variant("Base", TRIPLE, ADD, SUBTRACT, MULTIPLY, DIVIDE, NEGATE)
             .variant("SetClear", SET, CLEAR)
             .variant("Count", COUNT)
+            .variant("GcdLcm", GCD, LCM)
+            .variant("Reverse", REVERSE)
             .selector();
 
     private ParserTest() {

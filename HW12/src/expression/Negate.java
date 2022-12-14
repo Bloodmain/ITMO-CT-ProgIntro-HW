@@ -1,7 +1,9 @@
 package expression;
 
 public class Negate extends UnaryOperation {
-    private static final Priority PRIORITY = new Priority(100, 0, 10);
+    private static final Priority PRIORITY = new Priority(0,
+            OperationsGroups.UNARY,
+            OperationsProperties.REFLEXIVE | OperationsProperties.ASSOCIATIVE);
 
     public Negate(PriorityExpression operand) {
        super(operand, a -> -a, a -> -a);

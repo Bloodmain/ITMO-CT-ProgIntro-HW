@@ -2,7 +2,9 @@ package expression;
 
 public class Variable implements PriorityExpression {
     private final String name;
-    private final static Priority priority = new Priority(10, 0, 0);
+    private final static Priority priority = new Priority(1,
+            OperationsGroups.VARIABLES,
+            0);
     public Variable(final String name) {
         this.name = name;
     }

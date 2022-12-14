@@ -1,21 +1,19 @@
 package expression.parser;
-
 import expression.*;
-
 import java.util.Map;
 
 public final class ExpressionParser implements TripleParser {
+    private static final String NEGATE = "--";
     private static final Map<String, Integer> OPERATION_PRIORITIES = Map.of(
             "+", 5,
             "-", 5,
             "*", 10,
             "/", 10,
-            "--", 10,
-            "count", 10,
-            "set", 0,
-            "clear", 0
+            NEGATE, 15,
+            "reverse", 15,
+            "gcd", 0,
+            "lcm", 0
     );
-    private static final String AFTER_VARIABLES = "+-*/)sc" + BaseParser.END;
 
     public PriorityExpression parse(CharSource source) {
         return new ExpressionAnalyzer(source).parse();
@@ -34,11 +32,11 @@ public final class ExpressionParser implements TripleParser {
 
         private PriorityExpression parse() {
             PriorityExpression res = parseExpression(-1, null);
-            asserEOF();
+            assertEOF();
             return res;
         }
 
-        private PriorityExpression parseExpression(int returnOnPriority, PriorityExpression left) {
+        private PriorityExpression parseExpression(final int returnOnPriority, PriorityExpression left) {
             skipWhitespaces();
             if (left == null) {
                 if (testAndConsume('(')) {
@@ -54,9 +52,9 @@ public final class ExpressionParser implements TripleParser {
                         skipWhitespaces();
                         left = parseNegate();
                     }
-                } else if (testAndConsume('c')) {
-                    assertAndConsume("ount");
-                    left = parseBitCount();
+                } else if (testAndConsume('r')) {
+                    assertAndConsume("everse");
+                    left = parseReverse();
                 } else {
                     left = parseConst(false);
                 }
@@ -72,64 +70,38 @@ public final class ExpressionParser implements TripleParser {
                 op = "*";
             } else if (test('/')) {
                 op = "/";
-            } else if (test('s')) {
-                if (ExpressionParser.OPERATION_PRIORITIES.get("set") <= returnOnPriority) {
-                    return left;
-                }
-                assertAndConsume("se");
-                op = "set";
-            } else if (test('c')) {
-                if (ExpressionParser.OPERATION_PRIORITIES.get("clear") <= returnOnPriority) {
-                    return left;
-                }
-                assertAndConsume("clea");
-                op = "clear";
+            } else if (test('l')) {
+                op = "lcm";
+            } else if (test('g')) {
+                op = "gcd";
             } else {
                 return left;
             }
 
-            if (ExpressionParser.OPERATION_PRIORITIES.get(op) <= returnOnPriority) {
+            if (OPERATION_PRIORITIES.get(op) <= returnOnPriority) {
                 return left;
             }
-            consume();
+            assertAndConsume(op);
             skipWhitespaces();
-            PriorityExpression right = parseExpression(ExpressionParser.OPERATION_PRIORITIES.get(op), null);
-            PriorityExpression res;
+            PriorityExpression right = parseExpression(OPERATION_PRIORITIES.get(op), null);
+            PriorityExpression res = switch (op) {
+                case "+" -> new Add(left, right);
+                case "-" -> new Subtract(left, right);
+                case "*" -> new Multiply(left, right);
+                case "lcm" -> new Lcm(left, right);
+                case "gcd" -> new Gcd(left, right);
+                default -> new Divide(left, right);
+            };
 
-            switch (op) {
-                case "+" -> {
-                   res = new Add(left, right);
-                }
-                case "-" -> {
-                    res = new Subtract(left, right);
-                }
-                case "*" -> {
-                    res = new Multiply(left, right);
-                }
-                case "set" -> {
-                    res = new SetBit(left, right);
-                }
-                case "clear" -> {
-                    res = new ClearBit(left, right);
-                }
-                default -> {
-                    res = new Divide(left, right);
-                }
-            }
-
-            if (checkEOF()) {
-                return res;
-            } else {
-                return parseExpression(returnOnPriority, res);
-            }
+            return checkEOF() ? res : parseExpression(returnOnPriority, res);
         }
 
-        private PriorityExpression parseBitCount() {
-            return new BitCount(parseExpression(ExpressionParser.OPERATION_PRIORITIES.get("count"), null));
+        private PriorityExpression parseReverse() {
+            return new Reverse(parseExpression(OPERATION_PRIORITIES.get("reverse"), null));
         }
 
         private PriorityExpression parseNegate() {
-            return new Negate(parseExpression(ExpressionParser.OPERATION_PRIORITIES.get("--"), null));
+            return new Negate(parseExpression(OPERATION_PRIORITIES.get(NEGATE), null));
         }
 
         private PriorityExpression parseConst(boolean negative) {
@@ -142,7 +114,6 @@ public final class ExpressionParser implements TripleParser {
             }
             try {
                 skipWhitespaces();
-                assertNextOneOfThe(ExpressionParser.AFTER_VARIABLES);
                 return new Const(Integer.parseInt(res.toString()));
             } catch (NumberFormatException e) {
                 throw source.error("Expected const, but didn't find it");
@@ -152,9 +123,7 @@ public final class ExpressionParser implements TripleParser {
         private PriorityExpression parseVariable() {
             char variable = consume();
             skipWhitespaces();
-            assertNextOneOfThe(ExpressionParser.AFTER_VARIABLES);
             return new Variable(String.valueOf(variable));
         }
-
     }
 }

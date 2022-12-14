@@ -1,9 +1,9 @@
 package expression;
 
-import java.util.Objects;
-
 public class Const implements PriorityExpression {
-    private final static Priority priority = new Priority(10, 0,0);
+    private final static Priority priority = new Priority(0,
+            OperationsGroups.VARIABLES,
+            0);
     private final Number value;
 
     public Const(final int value) {

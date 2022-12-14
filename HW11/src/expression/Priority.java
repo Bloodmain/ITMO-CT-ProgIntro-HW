@@ -1,21 +1,31 @@
 package expression;
-
 public class Priority {
     private final int priority;
-    private final int leftBound;
-    private final int rightBound;
+    private final int group;
+    private final int properties;
 
-    public Priority(int priority, int leftBound, int rightBound) {
+    public Priority(int priority, int group, int properties) {
         this.priority = priority;
-        this.leftBound = leftBound;
-        this.rightBound = rightBound;
+        this.group = group;
+        this.properties = properties;
     }
 
     public boolean compareLeft(Priority that) {
-        return that.priority < this.leftBound;
+        return that.group < this.group;
     }
 
     public boolean compareRight(Priority that) {
-        return that.priority < this.rightBound;
+        if (that.group < this.group) {
+            return true;
+        } else if (that.group == this.group) {
+            if (that.priority < this.priority) {
+                return true;
+            }
+            if (that.priority == this.priority) {
+                return (that.properties & OperationsProperties.REFLEXIVE) == 0;
+            }
+            return (that.properties & OperationsProperties.HIGH_PRIORITY) != 0;
+        }
+        return false;
     }
 }

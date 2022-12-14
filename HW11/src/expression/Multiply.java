@@ -1,7 +1,10 @@
 package expression;
 
 public class Multiply extends BinaryOperation {
-    private static final Priority PRIORITY = new Priority(6, 2, 6);
+    private static final Priority PRIORITY = new Priority(
+            0,
+            OperationsGroups.MULTIPLICATIVE,
+            OperationsProperties.REFLEXIVE);
     public Multiply(PriorityExpression leftOperand, PriorityExpression rightOperand) {
         super(leftOperand, rightOperand, (a, b) -> a * b,(a, b) -> a * b);
     }
