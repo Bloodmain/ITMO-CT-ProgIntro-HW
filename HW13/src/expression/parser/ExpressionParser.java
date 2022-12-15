@@ -1,7 +1,9 @@
 package expression.parser;
+
 import expression.*;
 
 import java.util.Map;
+import java.util.Set;
 
 public final class ExpressionParser implements TripleParser {
     private static final String NEGATE = "--";
@@ -14,6 +16,10 @@ public final class ExpressionParser implements TripleParser {
             "reverse", 15,
             "gcd", 0,
             "lcm", 0
+    );
+
+    private static final Set<String> AVAILABLE_VARIABLES = Set.of(
+            "x", "y", "z"
     );
 
     public PriorityExpression parse(CharSource source) {
@@ -44,45 +50,43 @@ public final class ExpressionParser implements TripleParser {
                     left = parseExpression(-1, null);
                     assertNextEquals(')');
                     consume();
-                } else if (test('x') || test('y') || test('z')) {
-                    left = parseVariable();
                 } else if (testAndConsume('-')) {
                     if (checkBounds('0', '9')) {
                         left = parseConst(true);
                     } else {
                         skipWhitespaces();
-                        left = parseNegate();
+                        left = parseUnary(NEGATE);
                     }
-                } else if (testAndConsume('r')) {
-                    assertAndConsume("everse");
-                    left = parseReverse();
+                } else if (test(Character::isAlphabetic)) {
+                    String name = parseAlphabeticName();
+                    if (AVAILABLE_VARIABLES.contains(name)) {
+                        left = new Variable(name);
+                    } else {
+                        left = parseUnary(name);
+                    }
                 } else {
                     left = parseConst(false);
                 }
             }
 
             skipWhitespaces();
-            String op;
-            if (test('+')) {
-                op = "+";
-            } else if (test('-')) {
-                op = "-";
-            } else if (test('*')) {
-                op = "*";
-            } else if (test('/')) {
-                op = "/";
-            } else if (test('l')) {
-                op = "lcm";
-            } else if (test('g')) {
-                op = "gcd";
-            } else {
+            String op = parseSymbolicName();
+            if (op.isEmpty()) {
+                op = parseAlphabeticName();
+            }
+            if (op.isEmpty()) {
                 return left;
             }
 
+            if (!OPERATION_PRIORITIES.containsKey(op)) {
+                throw source.error("Unavailable binary operation's name: '" + op + "'");
+            }
+
             if (OPERATION_PRIORITIES.get(op) <= returnOnPriority) {
+                seekBackwards(op.length());
                 return left;
             }
-            assertAndConsume(op);
+
             skipWhitespaces();
             PriorityExpression right = parseExpression(OPERATION_PRIORITIES.get(op), null);
             PriorityExpression res = switch (op) {
@@ -97,12 +101,30 @@ public final class ExpressionParser implements TripleParser {
             return checkEOF() ? res : parseExpression(returnOnPriority, res);
         }
 
-        private PriorityExpression parseReverse() {
-            return new Reverse(parseExpression(OPERATION_PRIORITIES.get("reverse"), null));
+        private PriorityExpression parseUnary(String name) {
+            if (name.equals("reverse")) {
+                return new Reverse(parseExpression(OPERATION_PRIORITIES.get(name), null));
+            } else if (name.equals(NEGATE)) {
+                return new Negate(parseExpression(OPERATION_PRIORITIES.get(name), null));
+            }
+            throw source.error("Unavailable unary operator/variable 's name: '" + name + "'");
         }
 
-        private PriorityExpression parseNegate() {
-            return new Negate(parseExpression(OPERATION_PRIORITIES.get(NEGATE), null));
+        private String parseSymbolicName() {
+            if (testAndConsume('+')) {
+                return "+";
+            } else if (testAndConsume('-')) {
+                return "-";
+            } else if (testAndConsume('*')) {
+                return "*";
+            } else if (testAndConsume('/')) {
+                return "/";
+            }
+            return "";
+        }
+
+        private String parseAlphabeticName() {
+            return getSatisfied(c -> Character.isAlphabetic(c) || Character.isDigit(c));
         }
 
         private PriorityExpression parseConst(boolean negative) {
@@ -114,17 +136,10 @@ public final class ExpressionParser implements TripleParser {
                 res.append(consume());
             }
             try {
-                skipWhitespaces();
                 return new Const(Integer.parseInt(res.toString()));
             } catch (NumberFormatException e) {
-                throw source.error("Expected const, but didn't find it");
+                throw source.error("Unavailable const: '" + res + "'");
             }
-        }
-
-        private PriorityExpression parseVariable() {
-            char variable = consume();
-            skipWhitespaces();
-            return new Variable(String.valueOf(variable));
         }
     }
 }

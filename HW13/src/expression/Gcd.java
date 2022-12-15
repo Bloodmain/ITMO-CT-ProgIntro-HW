@@ -4,7 +4,7 @@ import java.util.function.BinaryOperator;
 
 public class Gcd extends BinaryOperation {
     public static final Priority PRIORITY = new Priority(0,
-            OperationsGroups.LOWEST_PRIORITY,
+            OperationsGroups.GCD_LCM,
             OperationsProperties.HIGH_PRIORITY | OperationsProperties.REFLEXIVE);
     public static final String SYMBOL = "gcd";
     public static final BinaryOperator<Integer> OPERATION_INT = Gcd::gcd;

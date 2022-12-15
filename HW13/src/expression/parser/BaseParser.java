@@ -1,5 +1,7 @@
 package expression.parser;
 
+import java.util.function.Predicate;
+
 public class BaseParser {
     protected final static char END = '\0';
     protected final CharSource source;
@@ -16,20 +18,19 @@ public class BaseParser {
         ch = source.hasNext() ? source.next() : END;
         return now;
     }
+
     public void skipWhitespaces() {
         while (Character.isWhitespace(ch)) {
             consume();
         }
     }
 
-    public void assertNextWhiteSpace() {
-        if (!Character.isWhitespace(ch)) {
-            throw source.error("Expected whitespace but found '" + ch + "'");
-        }
-    }
-
     public boolean test(char expected) {
         return ch == expected;
+    }
+
+    public boolean test(Predicate<Character> predicate) {
+        return predicate.test(ch);
     }
 
     public boolean checkEOF() {
@@ -44,12 +45,27 @@ public class BaseParser {
         return false;
     }
 
-    public void assertAndConsume(String expected) {
+    public boolean testAndConsume(String expected) {
         for (int i = 0; i < expected.length(); ++i) {
-            if (!testAndConsume(expected.charAt(i))) {
-                throw source.error("Expected '" + expected + "' but found '" + ch + "'");
+            if (!test(expected.charAt(i))) {
+                seekBackwards(i);
+                return false;
             }
         }
+        return true;
+    }
+
+    public String getSatisfied(Predicate<Character> predicate) {
+        StringBuilder res = new StringBuilder();
+        while (predicate.test(ch)) {
+            res.append(consume());
+        }
+        return res.toString();
+    }
+
+    public void seekBackwards(int offset) {
+        source.seekBackwards(offset + 1);
+        ch = source.next();
     }
 
     public boolean checkBounds(char leftBound, char rightBound) {

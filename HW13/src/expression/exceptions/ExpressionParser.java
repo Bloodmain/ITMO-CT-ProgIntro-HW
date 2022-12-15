@@ -36,7 +36,6 @@ public final class ExpressionParser implements TripleParser {
                 assertEOF();
                 return res;
             } catch (ParseException e) {
-                System.out.println(Main.getExceptionsChain(e));
                 throw new ParseException("Exception during expression parsing", e);
             }
         }
@@ -123,18 +122,6 @@ public final class ExpressionParser implements TripleParser {
             char variable = consume();
             skipWhitespaces();
             return new Variable(String.valueOf(variable));
-        }
-    }
-
-    public static void main(String[] args) {
-        try {
-            System.out.println(new ExpressionParser().parse("reverse x"));
-        } catch (ParseException e) {
-            Throwable x = e;
-            while (x != null) {
-                System.out.println(x.getMessage());
-                x = x.getCause();
-            }
         }
     }
 }
