@@ -1,6 +1,9 @@
 package expression;
 
-public class Const implements PriorityExpression, CheckedUnary, CheckedBinary {
+import expression.exceptions.CheckResult;
+import expression.exceptions.CheckedExpression;
+
+public class Const implements PriorityExpression, CheckedExpression {
     private final static Priority priority = new Priority(0,
             OperationsGroups.VARIABLES,
             0);
@@ -57,12 +60,7 @@ public class Const implements PriorityExpression, CheckedUnary, CheckedBinary {
     }
 
     @Override
-    public boolean check(int a, int b) {
-        return true;
-    }
-
-    @Override
-    public boolean check(int a) {
-        return true;
+    public CheckResult check(int... operands) {
+        return CheckResult.OKAY;
     }
 }

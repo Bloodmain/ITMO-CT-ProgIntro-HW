@@ -1,9 +1,12 @@
-package expression;
+package expression.exceptions;
+
+import expression.Negate;
+import expression.Priority;
 
 import java.util.function.UnaryOperator;
 
 public class CheckedNegate extends CheckedUnaryOperation {
-    public CheckedNegate(PriorityExpression operand) {
+    public CheckedNegate(CheckedExpression operand) {
         super(operand);
     }
 
@@ -28,7 +31,10 @@ public class CheckedNegate extends CheckedUnaryOperation {
     }
 
     @Override
-    public boolean check(int a) {
-        return a != Integer.MIN_VALUE;
+    public CheckResult check(int... operands) {
+        if (operands.length != 1) {
+            throw new AssertionError("Wrong operands number for Negate. (Should never happened).");
+        }
+        return operands[0] != Integer.MIN_VALUE ? CheckResult.OKAY : CheckResult.OVERFLOW;
     }
 }

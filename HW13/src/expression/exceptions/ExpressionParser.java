@@ -1,9 +1,7 @@
 package expression.exceptions;
-import expression.*;
-import expression.parser.BaseParser;
-import expression.parser.CharSource;
-import expression.parser.StringSource;
-import expression.parser.TripleParser;
+
+import expression.Const;
+import expression.Variable;
 
 import java.util.Map;
 
@@ -14,18 +12,15 @@ public final class ExpressionParser implements TripleParser {
             "-", 5,
             "*", 10,
             "/", 10,
-            NEGATE, 15,
-            "reverse", 15,
-            "gcd", 0,
-            "lcm", 0
+            NEGATE, 15
     );
 
-    public PriorityExpression parse(CharSource source) {
+    public CheckedExpression parse(CharSource source) throws ParseException {
         return new ExpressionAnalyzer(source).parse();
     }
 
     @Override
-    public PriorityExpression parse(String source) {
+    public CheckedExpression parse(String source) throws ParseException {
         return parse(new StringSource(source));
     }
 
@@ -35,18 +30,30 @@ public final class ExpressionParser implements TripleParser {
             super(source);
         }
 
-        private PriorityExpression parse() {
-            PriorityExpression res = parseExpression(-1, null);
-            assertEOF();
-            return res;
+        private CheckedExpression parse() throws ParseException {
+            try {
+                CheckedExpression res = parseExpression(-1, null);
+                assertEOF();
+                return res;
+            } catch (ParseException e) {
+                System.out.println(Main.getExceptionsChain(e));
+                throw new ParseException("Exception during expression parsing", e);
+            }
         }
 
-        private PriorityExpression parseExpression(final int returnOnPriority, PriorityExpression left) {
+        private CheckedExpression parseExpression(final int returnOnPriority,
+                                                  CheckedExpression left) throws ParseException {
             skipWhitespaces();
             if (left == null) {
                 if (testAndConsume('(')) {
                     left = parseExpression(-1, null);
-                    assertNextEquals(')');
+                    if (!test(')')) {
+                        if (checkEOF()) {
+                            throw new UnclosedParentheses("Pos " + source.getPos() + ": Unclosed parentheses",
+                                    new UnexpectedEOF("Unexpected EOF"));
+                        }
+                        throw new UnclosedParentheses("Pos " + source.getPos() + ": Unclosed parentheses");
+                    }
                     consume();
                 } else if (test('x') || test('y') || test('z')) {
                     left = parseVariable();
@@ -57,9 +64,6 @@ public final class ExpressionParser implements TripleParser {
                         skipWhitespaces();
                         left = parseNegate();
                     }
-                } else if (testAndConsume('r')) {
-                    assertAndConsume("everse");
-                    left = parseReverse();
                 } else {
                     left = parseConst(false);
                 }
@@ -75,11 +79,7 @@ public final class ExpressionParser implements TripleParser {
                 op = "*";
             } else if (test('/')) {
                 op = "/";
-            } else if (test('l')) {
-                op = "lcm";
-            } else if (test('g')) {
-                op = "gcd";
-            } else {
+            }  else {
                 return left;
             }
 
@@ -88,28 +88,22 @@ public final class ExpressionParser implements TripleParser {
             }
             assertAndConsume(op);
             skipWhitespaces();
-            PriorityExpression right = parseExpression(OPERATION_PRIORITIES.get(op), null);
-            PriorityExpression res = switch (op) {
-                case "+" -> new Add(left, right);
-                case "-" -> new Subtract(left, right);
-                case "*" -> new Multiply(left, right);
-                case "lcm" -> new Lcm(left, right);
-                case "gcd" -> new Gcd(left, right);
-                default -> new Divide(left, right);
+            CheckedExpression right = parseExpression(OPERATION_PRIORITIES.get(op), null);
+            CheckedExpression res = switch (op) {
+                case "+" -> new CheckedAdd(left, right);
+                case "-" -> new CheckedSubtract(left, right);
+                case "*" -> new CheckedMultiply(left, right);
+                default -> new CheckedDivide(left, right);
             };
 
             return checkEOF() ? res : parseExpression(returnOnPriority, res);
         }
 
-        private PriorityExpression parseReverse() {
-            return new Reverse(parseExpression(OPERATION_PRIORITIES.get("reverse"), null));
+        private CheckedExpression parseNegate() throws ParseException {
+            return new CheckedNegate(parseExpression(OPERATION_PRIORITIES.get(NEGATE), null));
         }
 
-        private PriorityExpression parseNegate() {
-            return new Negate(parseExpression(OPERATION_PRIORITIES.get(NEGATE), null));
-        }
-
-        private PriorityExpression parseConst(boolean negative) {
+        private CheckedExpression parseConst(boolean negative) throws ParseException {
             StringBuilder res = new StringBuilder();
             if (negative) {
                 res.append('-');
@@ -121,14 +115,26 @@ public final class ExpressionParser implements TripleParser {
                 skipWhitespaces();
                 return new Const(Integer.parseInt(res.toString()));
             } catch (NumberFormatException e) {
-                throw source.error("Expected const, but didn't find it");
+                throw new IncorrectConstantException("Pos " + source.getPos() + ": Expected const, but didn't find it");
             }
         }
 
-        private PriorityExpression parseVariable() {
+        private CheckedExpression parseVariable() {
             char variable = consume();
             skipWhitespaces();
             return new Variable(String.valueOf(variable));
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+            System.out.println(new ExpressionParser().parse("reverse x"));
+        } catch (ParseException e) {
+            Throwable x = e;
+            while (x != null) {
+                System.out.println(x.getMessage());
+                x = x.getCause();
+            }
         }
     }
 }

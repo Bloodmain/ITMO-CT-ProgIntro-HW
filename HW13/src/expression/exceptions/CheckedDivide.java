@@ -1,10 +1,13 @@
-package expression;
+package expression.exceptions;
+
+import expression.Divide;
+import expression.Priority;
 
 import java.util.function.BinaryOperator;
 
 public class CheckedDivide extends CheckedBinaryOperation {
 
-    public CheckedDivide(CheckedBinary leftOperand, CheckedBinary rightOperand) {
+    public CheckedDivide(CheckedExpression leftOperand, CheckedExpression rightOperand) {
         super(leftOperand, rightOperand);
     }
 
@@ -29,10 +32,14 @@ public class CheckedDivide extends CheckedBinaryOperation {
     }
 
     @Override
-    public boolean check(int a, int b) {
-        if (b == -1) {
-            return a != Integer.MIN_VALUE;
+    public CheckResult check(int... operands) {
+        if (operands.length != 2) {
+            throw new AssertionError("Wrong operands number for Divide. (Should never happened).");
         }
-        return b != 0;
+        int a = operands[0], b = operands[1];
+        if (b == -1) {
+            return a != Integer.MIN_VALUE ? CheckResult.OKAY : CheckResult.OVERFLOW;
+        }
+        return b != 0 ? CheckResult.OKAY : CheckResult.DIVISION_BY_ZERO;
     }
 }

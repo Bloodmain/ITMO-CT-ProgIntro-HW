@@ -1,6 +1,9 @@
 package expression;
 
-public class Variable implements PriorityExpression, CheckedUnary, CheckedBinary {
+import expression.exceptions.CheckResult;
+import expression.exceptions.CheckedExpression;
+
+public class Variable implements PriorityExpression, CheckedExpression {
     private final String name;
     private final static Priority priority = new Priority(1,
             OperationsGroups.VARIABLES,
@@ -53,12 +56,7 @@ public class Variable implements PriorityExpression, CheckedUnary, CheckedBinary
     }
 
     @Override
-    public boolean check(int a) {
-        return true;
-    }
-
-    @Override
-    public boolean check(int a, int b) {
-        return true;
+    public CheckResult check(int... operands) {
+        return CheckResult.OKAY;
     }
 }
