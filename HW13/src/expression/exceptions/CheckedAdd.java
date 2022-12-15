@@ -23,9 +23,19 @@ public class CheckedAdd extends CheckedBinaryOperation {
     }
 
     @Override
+    public BinaryOperator<Integer> getIntOperator() {
+        return Add.OPERATION_INT;
+    }
+
+    @Override
+    public BinaryOperator<Double> getDoubleOperator() {
+        return null;
+    }
+
+    @Override
     public CheckResult check(int... operands) {
         if (operands.length != 2) {
-            throw new AssertionError("Wrong operands number for Add. (Should never happened).");
+            throw new AssertionError("Wrong operands number for Add. (Should've never happened).");
         }
         int a = operands[0], b = operands[1];
         if (b >= 0) {
@@ -38,15 +48,5 @@ public class CheckedAdd extends CheckedBinaryOperation {
             }
         }
         return CheckResult.OVERFLOW;
-    }
-
-    @Override
-    public BinaryOperator<Integer> getIntOperator() {
-        return Add.OPERATION_INT;
-    }
-
-    @Override
-    public BinaryOperator<Double> getDoubleOperator() {
-        return null;
     }
 }

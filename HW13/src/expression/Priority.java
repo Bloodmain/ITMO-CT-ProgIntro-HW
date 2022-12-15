@@ -24,7 +24,7 @@ public class Priority {
             if (that.priority == this.priority) {
                 return (that.properties & OperationsProperties.REFLEXIVE) == 0;
             }
-            return (that.properties & OperationsProperties.HIGH_PRIORITY) != 0;
+            return (that.properties & OperationsProperties.HIGH_PRIORITY_IN_GROUP) != 0;
         }
         return false;
     }

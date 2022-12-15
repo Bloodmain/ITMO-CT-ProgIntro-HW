@@ -34,7 +34,7 @@ public class CheckedMultiply extends CheckedBinaryOperation {
     @Override
     public CheckResult check(int... operands) {
         if (operands.length != 2) {
-            throw new AssertionError("Wrong operands number for Multiply. (Should never happened).");
+            throw new AssertionError("Wrong operands number for Multiply. (Should've never happened).");
         }
         int a = operands[0], b = operands[1];
         if (a == 0 || b == 0) {

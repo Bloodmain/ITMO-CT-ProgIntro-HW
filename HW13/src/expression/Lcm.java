@@ -5,7 +5,7 @@ import java.util.function.BinaryOperator;
 public class Lcm extends BinaryOperation {
     public static final Priority PRIORITY = new Priority(1,
             OperationsGroups.GCD_LCM,
-            OperationsProperties.HIGH_PRIORITY | OperationsProperties.REFLEXIVE);
+            OperationsProperties.HIGH_PRIORITY_IN_GROUP | OperationsProperties.REFLEXIVE);
     public static final String SYMBOL = "lcm";
     public static final BinaryOperator<Integer> OPERATION_INT = Lcm::lcm;
 

@@ -33,7 +33,7 @@ public class CheckedSubtract extends CheckedBinaryOperation {
     @Override
     public CheckResult check(int... operands) {
         if (operands.length != 2) {
-            throw new AssertionError("Wrong operands number for Subtract. (Should never happened).");
+            throw new AssertionError("Wrong operands number for Subtract. (Should've never happened).");
         }
         int a = operands[0], b = operands[1];
         if (b >= 0) {

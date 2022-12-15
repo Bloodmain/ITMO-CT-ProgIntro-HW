@@ -1,6 +1,6 @@
 package expression.exceptions;
 
-public class NoEOFException extends UnexpectedToken {
+public class NoEOFException extends UnexpectedTokenException {
     public NoEOFException(String message) {
         super(message);
     }

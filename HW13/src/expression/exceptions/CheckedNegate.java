@@ -33,7 +33,7 @@ public class CheckedNegate extends CheckedUnaryOperation {
     @Override
     public CheckResult check(int... operands) {
         if (operands.length != 1) {
-            throw new AssertionError("Wrong operands number for Negate. (Should never happened).");
+            throw new AssertionError("Wrong operands number for Negate. (Should've never happened).");
         }
         return operands[0] != Integer.MIN_VALUE ? CheckResult.OKAY : CheckResult.OVERFLOW;
     }

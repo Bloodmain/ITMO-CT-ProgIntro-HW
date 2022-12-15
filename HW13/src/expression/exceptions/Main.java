@@ -3,10 +3,6 @@ package expression.exceptions;
 import java.util.Scanner;
 
 public class Main {
-    public static String getExceptionsChain(Throwable e) {
-        return e.getMessage() + (e.getCause() != null ? (" (" + getExceptionsChain(e.getCause()) + ")") : "");
-    }
-
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         System.out.println("Enter expression: ");
@@ -30,7 +26,7 @@ public class Main {
                 }
             }
         } catch (ParseException e) {
-            System.err.println(getExceptionsChain(e));
+            System.err.println("Exception during parsing of the given expression: " + e.getMessage());
         }
     }
 }

@@ -5,7 +5,7 @@ import java.util.function.BinaryOperator;
 public class Divide extends BinaryOperation {
     public static final Priority PRIORITY = new Priority(1,
             OperationsGroups.MULTIPLICATIVE,
-            OperationsProperties.HIGH_PRIORITY);
+            OperationsProperties.HIGH_PRIORITY_IN_GROUP);
     public static final String SYMBOL = "/";
     public static final BinaryOperator<Integer> OPERATION_INT = (a, b) -> a / b;
     public static final BinaryOperator<Double> OPERATION_DOUBLE = (a, b) -> a / b;

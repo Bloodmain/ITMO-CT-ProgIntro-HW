@@ -1,9 +1,9 @@
 package expression.exceptions;
 
-import expression.Const;
-import expression.Variable;
+import expression.*;
 
 import java.util.Map;
+import java.util.Set;
 
 public final class ExpressionParser implements TripleParser {
     private static final String NEGATE = "--";
@@ -13,6 +13,10 @@ public final class ExpressionParser implements TripleParser {
             "*", 10,
             "/", 10,
             NEGATE, 15
+    );
+
+    private static final Set<String> AVAILABLE_VARIABLES = Set.of(
+            "x", "y", "z"
     );
 
     public CheckedExpression parse(CharSource source) throws ParseException {
@@ -31,61 +35,67 @@ public final class ExpressionParser implements TripleParser {
         }
 
         private CheckedExpression parse() throws ParseException {
-            try {
-                CheckedExpression res = parseExpression(-1, null);
-                assertEOF();
-                return res;
-            } catch (ParseException e) {
-                throw new ParseException("Exception during expression parsing", e);
-            }
+            CheckedExpression res = parseExpression(-1, null);
+            assertEOF();
+            return res;
         }
 
-        private CheckedExpression parseExpression(final int returnOnPriority,
-                                                  CheckedExpression left) throws ParseException {
+        private CheckedExpression parseExpression(final int returnOnPriority, CheckedExpression left)
+                throws ParseException {
             skipWhitespaces();
             if (left == null) {
                 if (testAndConsume('(')) {
                     left = parseExpression(-1, null);
-                    if (!test(')')) {
-                        if (checkEOF()) {
-                            throw new UnclosedParentheses("Pos " + source.getPos() + ": Unclosed parentheses",
-                                    new UnexpectedEOF("Unexpected EOF"));
-                        }
-                        throw new UnclosedParentheses("Pos " + source.getPos() + ": Unclosed parentheses");
+                    try {
+                        assertNextEquals(')');
+                    } catch (UnexpectedTokenException e) {
+                        throw new UnclosedParenthesesException(e.getMessage());
                     }
+                    assertNextEquals(')');
                     consume();
-                } else if (test('x') || test('y') || test('z')) {
-                    left = parseVariable();
                 } else if (testAndConsume('-')) {
                     if (checkBounds('0', '9')) {
                         left = parseConst(true);
                     } else {
                         skipWhitespaces();
-                        left = parseNegate();
+                        left = parseUnary(NEGATE);
                     }
-                } else {
+                } else if (test(Character::isAlphabetic)) {
+                    String name = parseAlphabeticName();
+                    if (AVAILABLE_VARIABLES.contains(name)) {
+                        left = new Variable(name);
+                    } else {
+                        left = parseUnary(name);
+                    }
+                } else if (checkBounds('0', '9')) {
                     left = parseConst(false);
+                } else {
+                    throw new UnavailableIdentifierException(
+                            "Pos " + source.getPos() + ": Unavailable not-an-operation identifier '" + consume() + "'"
+                    );
                 }
             }
 
             skipWhitespaces();
-            String op;
-            if (test('+')) {
-                op = "+";
-            } else if (test('-')) {
-                op = "-";
-            } else if (test('*')) {
-                op = "*";
-            } else if (test('/')) {
-                op = "/";
-            }  else {
+            String op = parseSymbolicName();
+            if (op.isEmpty()) {
+                op = parseAlphabeticName();
+            }
+            if (op.isEmpty()) {
                 return left;
             }
 
+            if (!OPERATION_PRIORITIES.containsKey(op)) {
+                throw new UnavailableIdentifierException(
+                        "Pos " + source.getPos() + ": Unavailable binary operation's name '" + op + "'"
+                );
+            }
+
             if (OPERATION_PRIORITIES.get(op) <= returnOnPriority) {
+                seekBackwards(op.length());
                 return left;
             }
-            assertAndConsume(op);
+
             skipWhitespaces();
             CheckedExpression right = parseExpression(OPERATION_PRIORITIES.get(op), null);
             CheckedExpression res = switch (op) {
@@ -98,8 +108,30 @@ public final class ExpressionParser implements TripleParser {
             return checkEOF() ? res : parseExpression(returnOnPriority, res);
         }
 
-        private CheckedExpression parseNegate() throws ParseException {
-            return new CheckedNegate(parseExpression(OPERATION_PRIORITIES.get(NEGATE), null));
+        private CheckedExpression parseUnary(String name) throws ParseException {
+            if (name.equals(NEGATE)) {
+                return new CheckedNegate(parseExpression(OPERATION_PRIORITIES.get(name), null));
+            }
+            throw new UnavailableIdentifierException(
+                    "Pos " + source.getPos() + ": Unavailable unary operator/variable 's name '" + name + "'"
+            );
+        }
+
+        private String parseSymbolicName() {
+            if (testAndConsume('+')) {
+                return "+";
+            } else if (testAndConsume('-')) {
+                return "-";
+            } else if (testAndConsume('*')) {
+                return "*";
+            } else if (testAndConsume('/')) {
+                return "/";
+            }
+            return "";
+        }
+
+        private String parseAlphabeticName() {
+            return getSatisfied(c -> Character.isAlphabetic(c) || Character.isDigit(c));
         }
 
         private CheckedExpression parseConst(boolean negative) throws ParseException {
@@ -111,17 +143,10 @@ public final class ExpressionParser implements TripleParser {
                 res.append(consume());
             }
             try {
-                skipWhitespaces();
                 return new Const(Integer.parseInt(res.toString()));
             } catch (NumberFormatException e) {
-                throw new IncorrectConstantException("Pos " + source.getPos() + ": Expected const, but didn't find it");
+                throw new IncorrectConstantException("Pos " + source.getPos() + ": Unavailable const '" + res + "'");
             }
-        }
-
-        private CheckedExpression parseVariable() {
-            char variable = consume();
-            skipWhitespaces();
-            return new Variable(String.valueOf(variable));
         }
     }
 }

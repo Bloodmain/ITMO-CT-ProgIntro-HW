@@ -1,5 +1,7 @@
 package expression.exceptions;
 
+import java.util.function.Predicate;
+
 public class BaseParser {
     protected final static char END = '\0';
     protected final CharSource source;
@@ -16,6 +18,7 @@ public class BaseParser {
         ch = source.hasNext() ? source.next() : END;
         return now;
     }
+
     public void skipWhitespaces() {
         while (Character.isWhitespace(ch)) {
             consume();
@@ -24,6 +27,10 @@ public class BaseParser {
 
     public boolean test(char expected) {
         return ch == expected;
+    }
+
+    public boolean test(Predicate<Character> predicate) {
+        return predicate.test(ch);
     }
 
     public boolean checkEOF() {
@@ -38,21 +45,42 @@ public class BaseParser {
         return false;
     }
 
-    public void assertAndConsume(String expected) throws ParseException {
+    public boolean testAndConsume(String expected) {
         for (int i = 0; i < expected.length(); ++i) {
-            if (!testAndConsume(expected.charAt(i))) {
-                throw new UnexpectedToken("Expected '" + expected + "' but found '" + ch + "'");
+            if (!test(expected.charAt(i))) {
+                seekBackwards(i);
+                return false;
             }
         }
+        return true;
+    }
+
+    public String getSatisfied(Predicate<Character> predicate) {
+        StringBuilder res = new StringBuilder();
+        while (predicate.test(ch)) {
+            res.append(consume());
+        }
+        return res.toString();
+    }
+
+    public void seekBackwards(int offset) {
+        source.seekBackwards(offset + 1);
+        ch = source.next();
     }
 
     public boolean checkBounds(char leftBound, char rightBound) {
         return leftBound <= ch && ch <= rightBound;
     }
 
-    public void assertEOF() throws ParseException {
+    public void assertEOF() throws NoEOFException {
         if (!checkEOF()) {
-            throw new NoEOFException("Expected EOF but found '" + ch + "'");
+            throw new NoEOFException("Pos " + source.getPos() + ": expected EOF, but found '" + ch + "'");
+        }
+    }
+
+    public void assertNextEquals(char c) throws UnexpectedTokenException {
+        if (!test(c)) {
+            throw new UnexpectedTokenException("Pos " + source.getPos() + ": expected '" + c + "', but found '" + ch + "'");
         }
     }
 }
