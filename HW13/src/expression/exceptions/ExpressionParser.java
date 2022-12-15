@@ -118,13 +118,13 @@ public final class ExpressionParser implements TripleParser {
         }
 
         private String parseSymbolicName() {
-            if (testAndConsume('+')) {
+            if (testAndConsume("+")) {
                 return "+";
-            } else if (testAndConsume('-')) {
+            } else if (testAndConsume("-")) {
                 return "-";
-            } else if (testAndConsume('*')) {
+            } else if (testAndConsume("*")) {
                 return "*";
-            } else if (testAndConsume('/')) {
+            } else if (testAndConsume("/")) {
                 return "/";
             }
             return "";

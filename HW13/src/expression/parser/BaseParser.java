@@ -44,17 +44,6 @@ public class BaseParser {
         }
         return false;
     }
-
-    public boolean testAndConsume(String expected) {
-        for (int i = 0; i < expected.length(); ++i) {
-            if (!test(expected.charAt(i))) {
-                seekBackwards(i);
-                return false;
-            }
-        }
-        return true;
-    }
-
     public String getSatisfied(Predicate<Character> predicate) {
         StringBuilder res = new StringBuilder();
         while (predicate.test(ch)) {

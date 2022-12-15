@@ -47,8 +47,10 @@ public class BaseParser {
 
     public boolean testAndConsume(String expected) {
         for (int i = 0; i < expected.length(); ++i) {
-            if (!test(expected.charAt(i))) {
-                seekBackwards(i);
+            if (!testAndConsume(expected.charAt(i))) {
+                if (i != 0) {
+                    seekBackwards(i);
+                }
                 return false;
             }
         }
