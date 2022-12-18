@@ -71,7 +71,7 @@ public final class ExpressionParser implements TripleParser {
                     left = parseConst(false);
                 } else {
                     throw new UnavailableIdentifierException(
-                            "Pos " + source.getPos() + ": Unavailable not-an-operation identifier '" + consume() + "'"
+                            "Pos " + source.getPos() + ": Unavailable operand identifier '" + consume() + "'"
                     );
                 }
             }
@@ -145,7 +145,7 @@ public final class ExpressionParser implements TripleParser {
             try {
                 return new Const(Integer.parseInt(res.toString()));
             } catch (NumberFormatException e) {
-                throw new IncorrectConstantException("Pos " + source.getPos() + ": Unavailable const '" + res + "'");
+                throw new BadConstantException("Pos " + source.getPos() + ": Unavailable const '" + res + "'");
             }
         }
     }
