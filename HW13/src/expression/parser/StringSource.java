@@ -20,11 +20,12 @@ public class StringSource implements CharSource {
     }
 
     @Override
-    public void seekBackwards(int offset) {
+    public boolean seekBackwards(int offset) {
         if (offset > pos || offset < 0) {
             throw new IllegalArgumentException("Incorrect offset");
         }
         pos -= offset;
+        return pos > 0;
     }
 
     @Override

@@ -4,18 +4,29 @@ import expression.*;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BinaryOperator;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 public final class ExpressionParser implements TripleParser {
-    private static final String NEGATE = "--";
-    private static final Map<String, Integer> OPERATION_PRIORITIES = Map.of(
-            "+", 5,
-            "-", 5,
-            "*", 10,
-            "/", 10,
-            NEGATE, 15,
-            "reverse", 15,
-            "gcd", 0,
-            "lcm", 0
+    private static final Map<String, BinaryOperator<PriorityExpression>> GCD_LCM = Map.of(
+            "gcd", Gcd::new,
+            "lcm", Lcm::new
+    );
+
+    private static final Map<String, BinaryOperator<PriorityExpression>> ADDICTIVE = Map.of(
+            "+", Add::new,
+            "-", Subtract::new
+    );
+
+    private static final Map<String, BinaryOperator<PriorityExpression>> MULTIPLICATIVE = Map.of(
+            "*", Multiply::new,
+            "/", Divide::new
+    );
+
+    private static final Map<String, UnaryOperator<PriorityExpression>> UNARY_OPERATIONS = Map.of(
+            "-", Negate::new,
+            "reverse", Reverse::new
     );
 
     private static final Set<String> AVAILABLE_VARIABLES = Set.of(
@@ -38,93 +49,68 @@ public final class ExpressionParser implements TripleParser {
         }
 
         private PriorityExpression parse() {
-            PriorityExpression res = parseExpression(-1, null);
+            PriorityExpression result = parseGcdLcm();
             assertEOF();
-            return res;
+            return result;
         }
 
-        private PriorityExpression parseExpression(final int returnOnPriority, PriorityExpression left) {
+        private PriorityExpression parseExpression(final Map<String, BinaryOperator<PriorityExpression>> operationsToParse,
+                                                   Supplier<PriorityExpression> next) {
+            PriorityExpression expr = next.get();
             skipWhitespaces();
-            if (left == null) {
-                if (testAndConsume('(')) {
-                    left = parseExpression(-1, null);
-                    assertNextEquals(')');
-                    consume();
-                } else if (testAndConsume('-')) {
-                    if (checkBounds('0', '9')) {
-                        left = parseConst(true);
-                    } else {
-                        skipWhitespaces();
-                        left = parseUnary(NEGATE);
-                    }
-                } else if (test(Character::isAlphabetic)) {
-                    String name = parseAlphabeticName();
-                    if (AVAILABLE_VARIABLES.contains(name)) {
-                        left = new Variable(name);
-                    } else {
-                        left = parseUnary(name);
-                    }
-                } else {
-                    left = parseConst(false);
+            String op = readOperation();
+            while (operationsToParse.containsKey(op)) {
+                consume(op);
+                PriorityExpression right = next.get();
+                skipWhitespaces();
+                expr = operationsToParse.get(op).apply(expr, right);
+                op = readOperation();
+            }
+            return expr;
+        }
+
+        private PriorityExpression parseGcdLcm() {
+            return parseExpression(GCD_LCM, this::parseAddictive);
+        }
+
+        private PriorityExpression parseAddictive() {
+            return parseExpression(ADDICTIVE, this::parseMultiplicative);
+        }
+
+        private PriorityExpression parseMultiplicative() {
+            return parseExpression(MULTIPLICATIVE, this::parseBrackets);
+        }
+
+        private PriorityExpression parseBrackets() {
+            skipWhitespaces();
+            if (test('(')) {
+                consume();
+                PriorityExpression expr = parseGcdLcm();
+                skipWhitespaces();
+                assertNextEquals(')');
+                consume();
+                return expr;
+            } else {
+                return parseUnary();
+            }
+        }
+
+        private PriorityExpression parseUnary() {
+            skipWhitespaces();
+            if (checkBounds('0', '9')) {
+                return parseConst(false);
+            } else {
+                String name = readOperation();
+                consume(name);
+                if (name.equals("-") && checkBounds('0', '9')) {
+                    return parseConst(true);
+                } else if (UNARY_OPERATIONS.containsKey(name)) {
+                    return UNARY_OPERATIONS.get(name).apply(parseBrackets());
+                } else if (AVAILABLE_VARIABLES.contains(name)) {
+                    return new Variable(name);
                 }
+                throw source.error("Unexpected token: '" + name + "'");
             }
-
-            skipWhitespaces();
-            String op = parseSymbolicName();
-            if (op.isEmpty()) {
-                op = parseAlphabeticName();
-            }
-            if (op.isEmpty()) {
-                return left;
-            }
-
-            if (!OPERATION_PRIORITIES.containsKey(op)) {
-                throw source.error("Unavailable binary operation's name: '" + op + "'");
-            }
-
-            if (OPERATION_PRIORITIES.get(op) <= returnOnPriority) {
-                seekBackwards(op.length());
-                return left;
-            }
-
-            skipWhitespaces();
-            PriorityExpression right = parseExpression(OPERATION_PRIORITIES.get(op), null);
-            PriorityExpression res = switch (op) {
-                case "+" -> new Add(left, right);
-                case "-" -> new Subtract(left, right);
-                case "*" -> new Multiply(left, right);
-                case "lcm" -> new Lcm(left, right);
-                case "gcd" -> new Gcd(left, right);
-                default -> new Divide(left, right);
-            };
-
-            return checkEOF() ? res : parseExpression(returnOnPriority, res);
-        }
-
-        private PriorityExpression parseUnary(String name) {
-            if (name.equals("reverse")) {
-                return new Reverse(parseExpression(OPERATION_PRIORITIES.get(name), null));
-            } else if (name.equals(NEGATE)) {
-                return new Negate(parseExpression(OPERATION_PRIORITIES.get(name), null));
-            }
-            throw source.error("Unavailable unary operator/variable 's name: '" + name + "'");
-        }
-
-        private String parseSymbolicName() {
-            if (testAndConsume('+')) {
-                return "+";
-            } else if (testAndConsume('-')) {
-                return "-";
-            } else if (testAndConsume('*')) {
-                return "*";
-            } else if (testAndConsume('/')) {
-                return "/";
-            }
-            return "";
-        }
-
-        private String parseAlphabeticName() {
-            return getSatisfied(c -> Character.isAlphabetic(c) || Character.isDigit(c));
         }
 
         private PriorityExpression parseConst(boolean negative) {
@@ -140,6 +126,31 @@ public final class ExpressionParser implements TripleParser {
             } catch (NumberFormatException e) {
                 throw source.error("Unavailable const: '" + res + "'");
             }
+        }
+
+        private String readOperation() {
+            String op = parseSymbolicName();
+            if (op.isEmpty()) {
+                op = parseAlphabeticName();
+            }
+            return op;
+        }
+
+        private String parseSymbolicName() {
+            if (test('+')) {
+                return "+";
+            } else if (test('-')) {
+                return "-";
+            } else if (test('*')) {
+                return "*";
+            } else if (test('/')) {
+                return "/";
+            }
+            return "";
+        }
+
+        private String parseAlphabeticName() {
+            return getToken(c -> Character.isLetter(c) || Character.isDigit(c));
         }
     }
 }
