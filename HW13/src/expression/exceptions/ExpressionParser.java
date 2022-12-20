@@ -12,7 +12,12 @@ public final class ExpressionParser implements TripleParser {
             "-", 5,
             "*", 10,
             "/", 10,
-            NEGATE, 15
+            NEGATE, 15,
+            "reverse", 15,
+            "pow10", 15,
+            "log10", 15,
+            "gcd", 0,
+            "lcm", 0
     );
 
     private static final Set<String> AVAILABLE_VARIABLES = Set.of(
@@ -102,6 +107,8 @@ public final class ExpressionParser implements TripleParser {
                 case "+" -> new CheckedAdd(left, right);
                 case "-" -> new CheckedSubtract(left, right);
                 case "*" -> new CheckedMultiply(left, right);
+                case "gcd" -> new CheckedGcd(left, right);
+                case "lcm" -> new CheckedLcm(left, right);
                 default -> new CheckedDivide(left, right);
             };
 
@@ -109,12 +116,21 @@ public final class ExpressionParser implements TripleParser {
         }
 
         private CheckedExpression parseUnary(String name) throws ParseException {
-            if (name.equals(NEGATE)) {
-                return new CheckedNegate(parseExpression(OPERATION_PRIORITIES.get(name), null));
+            if (!OPERATION_PRIORITIES.containsKey(name)) {
+                throw new UnavailableIdentifierException(
+                        "Pos " + source.getPos() + ": Unavailable unary operator/variable 's name '" + name + "'"
+                );
             }
-            throw new UnavailableIdentifierException(
-                    "Pos " + source.getPos() + ": Unavailable unary operator/variable 's name '" + name + "'"
-            );
+            CheckedExpression expr = parseExpression(OPERATION_PRIORITIES.get(name), null);
+            return switch (name) {
+                case NEGATE -> new CheckedNegate(expr);
+                case "reverse" -> new CheckedReverse(expr);
+                case "log10" -> new CheckedLog10(expr);
+                case "pow10" -> new CheckedPow10(expr);
+                default -> throw new UnavailableIdentifierException(
+                        "Pos " + source.getPos() + ": Unavailable unary operator/variable 's name '" + name + "'"
+                );
+            };
         }
 
         private String parseSymbolicName() {

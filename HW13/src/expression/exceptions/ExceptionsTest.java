@@ -14,6 +14,11 @@ public final class ExceptionsTest {
 
     public static final Selector SELECTOR = Selector.composite(ExceptionsTest.class, ExceptionsTester::new, "easy", "hard")
             .variant("Base", TRIPLE, ADD, SUBTRACT, MULTIPLY, DIVIDE, NEGATE)
+            .variant("SetClear", SET, CLEAR)
+            .variant("Count", COUNT)
+            .variant("GcdLcm", GCD, LCM)
+            .variant("Reverse", REVERSE)
+            .variant("PowLog10", CHECKED_POW_10, CHECKED_LOG_10)
             .selector();
 
     private ExceptionsTest() {

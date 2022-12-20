@@ -10,8 +10,10 @@ public abstract class CheckedUnaryOperation extends UnaryOperation implements Ch
     @Override
     public int evaluate(int x) {
         int a = operand.evaluate(x);
-        if (check(a) == CheckResult.OVERFLOW) {
-            throw new OverflowException("Overflow for " + getOperatorSymbol() + " " + a);
+        switch (check(a)) {
+            case NEGATIVE_LOG_POW_ARGUMENT -> throw new
+                    NegativeLogPowException("Negative argument: " + getOperatorSymbol() + " " + a);
+            case OVERFLOW -> throw new OverflowException("Overflow for " + getOperatorSymbol() + " " + a);
         }
         return getIntOperator().apply(a);
     }
@@ -19,8 +21,10 @@ public abstract class CheckedUnaryOperation extends UnaryOperation implements Ch
     @Override
     public int evaluate(int x, int y, int z) {
         int a = operand.evaluate(x, y, z);
-        if (check(a) == CheckResult.OVERFLOW) {
-            throw new OverflowException("Overflow for " + getOperatorSymbol() + " " + a);
+        switch (check(a)) {
+            case NEGATIVE_LOG_POW_ARGUMENT -> throw new
+                    NegativeLogPowException("Negative argument: " + getOperatorSymbol() + " " + a);
+            case OVERFLOW -> throw new OverflowException("Overflow for " + getOperatorSymbol() + " " + a);
         }
         return getIntOperator().apply(a);
     }

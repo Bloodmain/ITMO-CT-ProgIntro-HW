@@ -1,7 +1,9 @@
 package expression.exceptions;
 
 import base.Functional;
-import expression.*;
+import expression.ToMiniString;
+import expression.TripleExpression;
+import expression.Variable;
 import expression.common.Op;
 import expression.parser.ParserTestSet;
 
