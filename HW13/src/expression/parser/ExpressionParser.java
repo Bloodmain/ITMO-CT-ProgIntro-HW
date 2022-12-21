@@ -24,7 +24,7 @@ public final class ExpressionParser implements TripleParser {
             "/", Divide::new
     );
 
-    private static final Map<String, UnaryOperator<PriorityExpression>> UNARY_OPERATIONS = Map.of(
+    private static final Map<String, UnaryOperator<PriorityExpression>> UNARY = Map.of(
             "-", Negate::new,
             "reverse", Reverse::new
     );
@@ -55,7 +55,7 @@ public final class ExpressionParser implements TripleParser {
         }
 
         private PriorityExpression parseExpression(final Map<String, BinaryOperator<PriorityExpression>> operationsToParse,
-                                                   Supplier<PriorityExpression> next) {
+                                                   final Supplier<PriorityExpression> next) {
             PriorityExpression expr = next.get();
             skipWhitespaces();
             String op = readOperation();
@@ -104,8 +104,8 @@ public final class ExpressionParser implements TripleParser {
                 consume(name);
                 if (name.equals("-") && checkBounds('0', '9')) {
                     return parseConst(true);
-                } else if (UNARY_OPERATIONS.containsKey(name)) {
-                    return UNARY_OPERATIONS.get(name).apply(parseBrackets());
+                } else if (UNARY.containsKey(name)) {
+                    return UNARY.get(name).apply(parseBrackets());
                 } else if (AVAILABLE_VARIABLES.contains(name)) {
                     return new Variable(name);
                 }
@@ -129,14 +129,14 @@ public final class ExpressionParser implements TripleParser {
         }
 
         private String readOperation() {
-            String op = parseSymbolicName();
+            String op = readSymbolicName();
             if (op.isEmpty()) {
-                op = parseAlphabeticName();
+                op = readAlphabeticName();
             }
             return op;
         }
 
-        private String parseSymbolicName() {
+        private String readSymbolicName() {
             if (test('+')) {
                 return "+";
             } else if (test('-')) {
@@ -149,7 +149,7 @@ public final class ExpressionParser implements TripleParser {
             return "";
         }
 
-        private String parseAlphabeticName() {
+        private String readAlphabeticName() {
             return getToken(c -> Character.isLetter(c) || Character.isDigit(c));
         }
     }
